@@ -11,6 +11,7 @@ public class main{
     String verb = "Verb";
     JFrame jFrame = new JFrame();
     JButton button = new JButton("Check");
+    JButton buttonAddVerb = new JButton("Add verb");
     JLabel jLabel = new JLabel(verb);
     JTextField jTextField = new JTextField("Spielen Jugar");
     char[] textInChars;
@@ -29,28 +30,25 @@ public class main{
     }
     public void Learning() {
 
-        button.addActionListener(new ActionListener() {
+        buttonAddVerb.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                VerbObj.setDeutsch("Spielen");
-                VerbObj.setSpanish("Jugar");
-                text = jTextField.getSelectedText();
-                System.out.println(text);
-                String mid = "";
-                String Deutsch = "";
-                String Spanisch = "";
-                for(int i = 0; i<textInChars.length;i++){
-                    mid = textInChars[i] + mid;
-                if(mid == " " || mid == null) {
-                    String finalDeutsch =  Deutsch;
-                        break;
-
-                }
-                else{
-                    Deutsch = mid  + Deutsch;
-                }
-                }
-                System.out.println(Deutsch);
+                JPopupMenu popupmenu = new JPopupMenu("New Verb");
+                JTextField DeutschVerb = new JTextField("The German Verb");
+                DeutschVerb.setEditable(false);
+                JTextField DeutschVerbBox = new JTextField("");
+                JTextField SpanischVerb = new JTextField("The Spanisch Verb");
+                SpanischVerb.setEditable(false);
+                JTextField SpanischVerbBox = new JTextField("");
+               
+                popupmenu.setLayout(new CardLayout());
+                popupmenu.add(DeutschVerbBox, Component.LEFT);
+                popupmenu.add(DeutschVerb, Component.LEFT);
+                popupmenu.add(SpanischVerbBox, Component.RIGHT);
+                popupmenu.add(SpanischVerb, Component.RIGHT);    
+                popupmenu.setVisible(true);
+                
+                
             }
         });
         jFrame.setTitle("Spanisch Lernen");
