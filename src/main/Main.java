@@ -6,10 +6,13 @@ import javax.swing.text.StyleContext;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyVetoException;
+import java.beans.VetoableChangeListener;
 import java.io.File;
 import java.io.IOException;
 
-public class Main {
+public class Main implements Runnable{
 
     JFrame frame = new JFrame("Unknown File");
     JPanel panel = new JPanel();
@@ -19,7 +22,9 @@ public class Main {
     JMenu menu = new JMenu("File");
     Editor currentEditor;
     JTextPane selectedText = new JTextPane();
+    boolean autoSave;
     Editor editor;
+    String programmName = "TextEditor";
  
     public static void main(String[] args) {
         Main main = new Main();
@@ -46,7 +51,24 @@ public class Main {
 
         frame.setVisible(true);
     }
+    private void settings(){
+        JFrame jFrame = new JFrame();
+        JPanel jPanel = new JPanel();
+        JCheckBox jCheckBox = new JCheckBox();
+        JEditorPane editorPane = new JEditorPane();
+        editorPane.setEditable(false);
+        editorPane.setText("Auto-Save");
+        jCheckBox.addActionListener(e -> {
+            System.out.println("da");
+            autoSave = !autoSave;
 
+        });
+        jPanel.add(jCheckBox,Component.RIGHT_ALIGNMENT);
+        jPanel.add(editorPane,Component.LEFT_ALIGNMENT);
+        jFrame.add(jPanel);
+        jFrame.setSize(450,450);
+        jFrame.setVisible(true);
+    }
     private void close(){
         final JFrame frame = new JFrame("Close");
         this.frame.setTitle("");
@@ -137,6 +159,7 @@ public class Main {
     }
 
     private void menu(){
+        JMenuItem settings = new JMenuItem("Settings");
         JMenuItem saveAs = new JMenuItem("Save As");
         JMenuItem color = new JMenuItem("Change Color");
         JMenuItem open = new JMenuItem("Open");
@@ -170,6 +193,7 @@ public class Main {
             saveToPrint();
 
         });
+        settings.addActionListener(e -> settings());
         changeStyle.add(italic);
         changeStyle.add(bold);
         changeStyle.add(underline);
@@ -183,6 +207,7 @@ public class Main {
         menu.add(save);
         menu.add(saveAs);
         menu.add(saveToPrint);
+        menu.add(settings);
         modify.add(size);
         modify.add(changeStyle);
         modify.add(color);
@@ -203,6 +228,7 @@ public class Main {
         chooser.addActionListener(e -> {
             try {
                 editor.save(chooser.getSelectedFile());
+                chooserFrame.setVisible(false);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -212,7 +238,8 @@ public class Main {
     }
 
     private void start(){
-
+        Thread saveThread = new Thread("SaveThread " + programmName);
+        saveThread.start();
         menu();
 
         editor = new Editor();
@@ -232,4 +259,12 @@ public class Main {
         }
     }
 
+    @Override
+    public void run() {
+        while(autoSave){
+            editor.getText().addVetoableChangeListener(evt -> {
+                save();
+            });
+        }
+    }
 }

@@ -4,14 +4,19 @@ import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
 import java.io.*;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 
 public class Editor extends JComponent {
-
+    MutableAttributeSet mas = new SimpleAttributeSet();
     private JTextPane text = new JTextPane();
     private File file;
     private String lastLoad;
     private int size;
     private Color color = Color.BLACK;
+    private ArrayList<ModifiedText> ModifiedTexts = new ArrayList<>();
+    private int modiedTextedLen;
+    private boolean sizeHasChanged;
 
 
     public boolean isLoad() {
@@ -19,12 +24,14 @@ public class Editor extends JComponent {
     }
     public void setColor(Color color){
         this.color = color;
+        sizeHasChanged = false;
         setStyle(0);
     }
 
 
     public void setSize(int size) {
         this.size = size;
+        sizeHasChanged = true;
         setStyle(0);
 
     }
@@ -60,7 +67,7 @@ public class Editor extends JComponent {
 
 
     public void setStyle(int style) {
-        MutableAttributeSet mas = new SimpleAttributeSet();
+
 
         if(style == 1) {
             if(!StyleConstants.isBold(mas)) {
@@ -76,31 +83,66 @@ public class Editor extends JComponent {
                 StyleConstants.setItalic(mas, false);
             }
         }
+        int selStart = text.getSelectionStart();
+        int selLen = text.getSelectionEnd()- text.getSelectionStart();
         StyleConstants.setForeground(mas,color);
-        StyleConstants.setFontSize(mas, size);
+        if(sizeHasChanged) {
+            StyleConstants.setFontSize(mas, size);
+            sizeHasChanged = false;
+        }
+
         StyledDocument doc = (DefaultStyledDocument) text.getDocument();
-        doc.setCharacterAttributes(text.getSelectionStart(), text.getSelectionEnd()- text.getSelectionStart(),mas,false);
+        doc.setCharacterAttributes(selStart, selLen ,mas,false);
         StyleConstants.setFontFamily(mas,"Arial");
+            ModifiedTexts.add(new ModifiedText(selStart,selLen, StyleConstants.getForeground(mas),StyleConstants.getFontSize(mas),StyleConstants.isItalic(mas),StyleConstants.isBold(mas)));
+
+
     }
 
     public void save(File file) throws IOException {
         this.file = file;
-        try (DataOutputStream stream = new DataOutputStream(new FileOutputStream(file))) {
-            stream.writeShort(text.getFont().getSize());
-            stream.writeShort(text.getFont().getStyle());
-            stream.writeUTF(text.getFont().getName());
+        try (DataOutputStream stream = new DataOutputStream(new FileOutputStream(file + ".te"))) {
+            stream.writeShort(ModifiedTexts.size());
+            for(ModifiedText modifiedText : ModifiedTexts){
+                stream.writeShort(modifiedText.start);
+                stream.writeShort(modifiedText.len);
+                stream.writeUTF(String.valueOf(modifiedText.color));
+                stream.writeShort(modifiedText.size);
+                stream.writeBoolean(modifiedText.isItalic);
+                stream.writeBoolean(modifiedText.isBold);
+            }
             stream.writeUTF(text.getText());
         }
     }
 
     public void load(File file) throws IOException {
+        this.file = file;
         try (DataInputStream stream = new DataInputStream(new FileInputStream(file))) {
-            int fontSize = stream.readShort();
-            int style = stream.readShort();
-            String name = stream.readUTF();
+            ArrayList<ModifiedText> modifiedTexts = new ArrayList<>();
 
-            text.setFont(new Font(name, style, fontSize));
+            for(int i = 0; i <  stream.readShort(); i++) {
+                ModifiedText modifiedText = new ModifiedText( stream.readShort(),stream.readShort(),Color.getColor(stream.readUTF()),stream.readShort(),stream.readBoolean(),stream.readBoolean());
+                modifiedTexts.add(modifiedText);
+            }
+
             setText(stream.readUTF());
+            System.out.println(text.getText() + "whahaaayyy");
+            System.out.println(ModifiedTexts.size());
+            for(ModifiedText modifiedText : ModifiedTexts){
+                if(modifiedText.isBold) {
+                    StyleConstants.setBold(mas, true);
+                }
+                if(modifiedText.isItalic){
+                    StyleConstants.setItalic(mas,true);
+                }
+                StyleConstants.setFontSize(mas,modifiedText.size);
+                StyleConstants.setForeground(mas,modifiedText.color);
+                StyledDocument doc = (StyledDocument) text.getDocument();
+                System.out.println(StyleConstants.getForeground(mas) + " : " + StyleConstants.getFontSize(mas) + " : " + StyleConstants.isBold(mas) + " : " + StyleConstants.isItalic(mas) + " : " + modifiedText.start + " : " + modifiedText.len);
+                doc.setCharacterAttributes(modifiedText.start,modifiedText.len,mas,true);
+                StyleConstants.setFontFamily(mas,"Arial");
+            }
+            System.out.println(text.getText());
         }
     }
     public void saveToPrint(File file) throws FileNotFoundException {
