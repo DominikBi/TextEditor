@@ -38,12 +38,9 @@ public class Main implements Runnable{
 
         panel.add(colorChooser);
         panel.add(button);
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                editor.setColor(colorChooser.getColor());
-                frame.setVisible(false);
-            }
+        button.addActionListener(e -> {
+            editor.setColor(colorChooser.getColor());
+            frame.setVisible(false);
         });
         frame.add(panel);
         frame.setSize(400,400);

@@ -102,7 +102,9 @@ public class Editor extends JComponent {
     public void save(File file) throws IOException {
         this.file = file;
         try (DataOutputStream stream = new DataOutputStream(new FileOutputStream(file + ".te"))) {
-            stream.writeShort(ModifiedTexts.size());
+
+            stream.writeUTF(text.getText());
+            stream.writeInt(ModifiedTexts.size());
             for(ModifiedText modifiedText : ModifiedTexts){
                 stream.writeShort(modifiedText.start);
                 stream.writeShort(modifiedText.len);
@@ -111,36 +113,42 @@ public class Editor extends JComponent {
                 stream.writeBoolean(modifiedText.isItalic);
                 stream.writeBoolean(modifiedText.isBold);
             }
-            stream.writeUTF(text.getText());
+
+
         }
     }
 
     public void load(File file) throws IOException {
+        MutableAttributeSet ownMas = new SimpleAttributeSet();
         this.file = file;
         try (DataInputStream stream = new DataInputStream(new FileInputStream(file))) {
+            String text1 = stream.readUTF();
+            System.out.println(text1);
+            setText(text1);
             ArrayList<ModifiedText> modifiedTexts = new ArrayList<>();
-
-            for(int i = 0; i <  stream.readShort(); i++) {
+            int x = stream.readInt();
+            System.out.println(x);
+            for(int i = 0; i <  x; i++) {
                 ModifiedText modifiedText = new ModifiedText( stream.readShort(),stream.readShort(),Color.getColor(stream.readUTF()),stream.readShort(),stream.readBoolean(),stream.readBoolean());
                 modifiedTexts.add(modifiedText);
             }
 
-            setText(stream.readUTF());
+
             System.out.println(text.getText() + "whahaaayyy");
-            System.out.println(ModifiedTexts.size());
-            for(ModifiedText modifiedText : ModifiedTexts){
+            System.out.println(modifiedTexts.size());
+            for(ModifiedText modifiedText : modifiedTexts){
                 if(modifiedText.isBold) {
-                    StyleConstants.setBold(mas, true);
+                    StyleConstants.setBold(ownMas, true);
                 }
                 if(modifiedText.isItalic){
-                    StyleConstants.setItalic(mas,true);
+                    StyleConstants.setItalic(ownMas,true);
                 }
-                StyleConstants.setFontSize(mas,modifiedText.size);
-                StyleConstants.setForeground(mas,modifiedText.color);
+                StyleConstants.setFontSize(ownMas,modifiedText.size);
+                StyleConstants.setForeground(ownMas,modifiedText.color);
                 StyledDocument doc = (StyledDocument) text.getDocument();
-                System.out.println(StyleConstants.getForeground(mas) + " : " + StyleConstants.getFontSize(mas) + " : " + StyleConstants.isBold(mas) + " : " + StyleConstants.isItalic(mas) + " : " + modifiedText.start + " : " + modifiedText.len);
-                doc.setCharacterAttributes(modifiedText.start,modifiedText.len,mas,true);
-                StyleConstants.setFontFamily(mas,"Arial");
+                System.out.println(StyleConstants.getForeground(ownMas) + " : " + StyleConstants.getFontSize(ownMas) + " : " + StyleConstants.isBold(ownMas) + " : " + StyleConstants.isItalic(ownMas) + " : " + modifiedText.start + " : " + modifiedText.len);
+                doc.setCharacterAttributes(modifiedText.start,modifiedText.len,ownMas,false);
+
             }
             System.out.println(text.getText());
         }
