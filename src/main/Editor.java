@@ -17,6 +17,14 @@ public class Editor extends JComponent {
     private ArrayList<ModifiedText> ModifiedTexts = new ArrayList<>();
     private int modiedTextedLen;
     private boolean sizeHasChanged;
+    private boolean isItalic;
+    private boolean isBold;
+    private Color fontColor;
+    private int textSize;
+
+
+
+
 
 
     public boolean isLoad() {
@@ -42,7 +50,12 @@ public class Editor extends JComponent {
     }
 
     public Editor() {
+
+
+
         text.setPreferredSize(new Dimension(Toolkit.getDefaultToolkit().getScreenSize().width-30,Toolkit.getDefaultToolkit().getScreenSize().height/2));
+
+
     }
 
     public boolean hasChanged() {
@@ -75,28 +88,37 @@ public class Editor extends JComponent {
             }else{
                 StyleConstants.setBold(mas,false);
             }
+            isBold = !isBold;
         }
         else if(style == 2) {
             if (!StyleConstants.isItalic(mas)) {
                 StyleConstants.setItalic(mas, true);
+
             } else {
                 StyleConstants.setItalic(mas, false);
             }
+            isItalic = !isItalic;
         }
         int selStart = text.getSelectionStart();
         int selLen = text.getSelectionEnd()- text.getSelectionStart();
         StyleConstants.setForeground(mas,color);
+        fontColor = color;
         if(sizeHasChanged) {
             StyleConstants.setFontSize(mas, size);
+            textSize = size;
             sizeHasChanged = false;
         }
+        System.out.println(selStart + " : " + selLen + " : " + StyleConstants.getFontSize(mas) + " : " + StyleConstants.getForeground(mas) +  " : " +StyleConstants.isItalic(mas) + " : " + StyleConstants.isBold(mas));
 
         StyledDocument doc = (DefaultStyledDocument) text.getDocument();
-        doc.setCharacterAttributes(selStart, selLen ,mas,false);
-        StyleConstants.setFontFamily(mas,"Arial");
+        StyleConstants.setFontFamily(mas,"serif");
+        doc.setCharacterAttributes(selStart, selLen ,mas,true);
+
             ModifiedTexts.add(new ModifiedText(selStart,selLen, StyleConstants.getForeground(mas),StyleConstants.getFontSize(mas),StyleConstants.isItalic(mas),StyleConstants.isBold(mas)));
-
-
+        StyleConstants.setBold(mas,false);
+        StyleConstants.setFontSize(mas,12);
+        StyleConstants.setItalic(mas,false);
+        StyleConstants.setForeground(mas,Color.BLACK);
     }
 
     public void save(File file) throws IOException {
@@ -108,7 +130,9 @@ public class Editor extends JComponent {
             for(ModifiedText modifiedText : ModifiedTexts){
                 stream.writeShort(modifiedText.start);
                 stream.writeShort(modifiedText.len);
-                stream.writeUTF(String.valueOf(modifiedText.color));
+                stream.writeInt(modifiedText.color.getRed());
+                stream.writeInt(modifiedText.color.getGreen());
+                stream.writeInt(modifiedText.color.getBlue());
                 stream.writeShort(modifiedText.size);
                 stream.writeBoolean(modifiedText.isItalic);
                 stream.writeBoolean(modifiedText.isBold);
@@ -129,12 +153,12 @@ public class Editor extends JComponent {
             int x = stream.readInt();
             System.out.println(x);
             for(int i = 0; i <  x; i++) {
-                ModifiedText modifiedText = new ModifiedText( stream.readShort(),stream.readShort(),Color.getColor(stream.readUTF()),stream.readShort(),stream.readBoolean(),stream.readBoolean());
+                ModifiedText modifiedText = new ModifiedText( stream.readShort(),stream.readShort(),new Color(stream.readInt(),stream.readInt(),stream.readInt()),stream.readShort(),stream.readBoolean(),stream.readBoolean());
                 modifiedTexts.add(modifiedText);
             }
 
 
-            System.out.println(text.getText() + "whahaaayyy");
+            System.out.println(text.getText());
             System.out.println(modifiedTexts.size());
             for(ModifiedText modifiedText : modifiedTexts){
                 if(modifiedText.isBold) {
@@ -145,9 +169,10 @@ public class Editor extends JComponent {
                 }
                 StyleConstants.setFontSize(ownMas,modifiedText.size);
                 StyleConstants.setForeground(ownMas,modifiedText.color);
-                StyledDocument doc = (StyledDocument) text.getDocument();
+                StyledDocument doc = (DefaultStyledDocument) text.getDocument();
+                System.out.println(modifiedText.color + " : " + modifiedText.size + " : " + modifiedText.isBold + " : " + modifiedText.isItalic + " : " + modifiedText.start + " : " + modifiedText.len);
                 System.out.println(StyleConstants.getForeground(ownMas) + " : " + StyleConstants.getFontSize(ownMas) + " : " + StyleConstants.isBold(ownMas) + " : " + StyleConstants.isItalic(ownMas) + " : " + modifiedText.start + " : " + modifiedText.len);
-                doc.setCharacterAttributes(modifiedText.start,modifiedText.len,ownMas,false);
+                doc.setCharacterAttributes(modifiedText.start,modifiedText.len,ownMas,true);
 
             }
             System.out.println(text.getText());
@@ -162,5 +187,7 @@ public class Editor extends JComponent {
             e.printStackTrace();
         }
     }
+
+
 
 }

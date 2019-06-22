@@ -6,6 +6,8 @@ import javax.swing.text.StyleContext;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
@@ -22,11 +24,18 @@ public class Main implements Runnable{
     JMenu menu = new JMenu("File");
     Editor currentEditor;
     JTextPane selectedText = new JTextPane();
-    boolean autoSave;
+    public boolean autoSave;
     Editor editor;
     String programmName = "TextEditor";
- 
-    public static void main(String[] args) {
+    int xCount;
+    MyThread myThread = new MyThread();
+    Settings settingsObj = new Settings();
+
+
+
+
+
+    public static void main(String[] args) throws InterruptedException {
         Main main = new Main();
         main.start();
     }
@@ -48,24 +57,7 @@ public class Main implements Runnable{
 
         frame.setVisible(true);
     }
-    private void settings(){
-        JFrame jFrame = new JFrame();
-        JPanel jPanel = new JPanel();
-        JCheckBox jCheckBox = new JCheckBox();
-        JEditorPane editorPane = new JEditorPane();
-        editorPane.setEditable(false);
-        editorPane.setText("Auto-Save");
-        jCheckBox.addActionListener(e -> {
-            System.out.println("da");
-            autoSave = !autoSave;
 
-        });
-        jPanel.add(jCheckBox,Component.RIGHT_ALIGNMENT);
-        jPanel.add(editorPane,Component.LEFT_ALIGNMENT);
-        jFrame.add(jPanel);
-        jFrame.setSize(450,450);
-        jFrame.setVisible(true);
-    }
     private void close(){
         final JFrame frame = new JFrame("Close");
         this.frame.setTitle("");
@@ -112,6 +104,44 @@ public class Main implements Runnable{
         frame.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width/2-100,Toolkit.getDefaultToolkit().getScreenSize().height/2-100);
         frame.setVisible(true);
     }
+    private void fontFamily(){
+
+    }
+    private void settingz(){
+        JFrame chooserFrame = new JFrame();
+        JPanel panel = new JPanel();
+
+        chooserFrame.setSize(550, 400);
+        final JFileChooser chooser = new JFileChooser();
+        chooser.setDialogType(JFileChooser.SAVE_DIALOG);
+        panel.add(chooser);
+        chooser.addActionListener(e -> {
+            try {
+                //write in selected file
+                editor.save(chooser.getSelectedFile());
+                chooserFrame.setVisible(false);
+                //addActionListener so every time someone writes something it gets saved
+                editor.getText().addKeyListener(new KeyAdapter() {
+                    @Override
+                    public void keyTyped(KeyEvent e) {
+                        System.out.println("ads");
+                        super.keyTyped(e);
+                        try {
+                            editor.save();
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+
+                    }
+                });
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
+        chooserFrame.add(panel);
+        chooserFrame.setVisible(true);
+
+    }
     private void saveToPrint(){
         JFrame chooserFrame = new JFrame();
         JPanel panel = new JPanel();
@@ -155,7 +185,8 @@ public class Main implements Runnable{
         expFrame.setVisible(true);
     }
 
-    private void menu(){
+    public void menu(){
+
         JMenuItem settings = new JMenuItem("Settings");
         JMenuItem saveAs = new JMenuItem("Save As");
         JMenuItem color = new JMenuItem("Change Color");
@@ -168,6 +199,7 @@ public class Main implements Runnable{
         JMenuItem bold = new JMenuItem("Bold");
         JMenuItem underline = new JMenuItem("Underline");
         JMenuItem saveToPrint = new JMenuItem("Save to Print");
+        JMenuItem fontFamily = new JMenuItem("Font");
         JMenu modify = new JMenu("Modify");
 
         save.setAccelerator(KeyStroke.getKeyStroke('S',Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() )   );
@@ -175,7 +207,8 @@ public class Main implements Runnable{
         bold.addActionListener(e -> editor.setStyle(Font.BOLD));
         color.addActionListener(e -> changeColor());
         size.addActionListener(e -> modifySize());
-        underline.addActionListener((ActionListener) e -> editor.setSize(3));
+
+        underline.addActionListener(e -> editor.setSize(3));
                 save.addActionListener(e -> {
                     if (editor.isLoad()) {
                         save();
@@ -190,7 +223,7 @@ public class Main implements Runnable{
             saveToPrint();
 
         });
-        settings.addActionListener(e -> settings());
+        settings.addActionListener(e -> settingsObj.start());
         changeStyle.add(italic);
         changeStyle.add(bold);
         changeStyle.add(underline);
@@ -234,17 +267,19 @@ public class Main implements Runnable{
         chooserFrame.setVisible(true);
     }
 
-    private void start(){
-        Thread saveThread = new Thread("SaveThread " + programmName);
-        saveThread.start();
-        menu();
+    private void start() throws InterruptedException {
 
+        System.out.println(System.getProperty("user.home"));
+        Thread.currentThread().interrupt();
+        menu();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         editor = new Editor();
         currentEditor = editor;
 
         panel.add(editor.getText(), Component.BOTTOM_ALIGNMENT);
         frame.add(panel);
         frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
         frame.setVisible(true);
     }
 
