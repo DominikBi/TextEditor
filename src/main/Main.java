@@ -16,6 +16,7 @@ import java.io.IOException;
 
 public class Main implements Runnable{
 
+
     JFrame frame = new JFrame("Unknown File");
     JPanel panel = new JPanel();
     JFrame expFrame = new JFrame();
@@ -28,10 +29,8 @@ public class Main implements Runnable{
     Editor editor;
     String programmName = "TextEditor";
     int xCount;
-    MyThread myThread = new MyThread();
-    Settings settingsObj = new Settings();
-
-
+    String paneText;
+    Text text = new Text();
 
 
 
@@ -124,6 +123,7 @@ public class Main implements Runnable{
                 editor.getText().addKeyListener(new KeyAdapter() {
                     @Override
                     public void keyTyped(KeyEvent e) {
+                        Thread.currentThread().notify();
                         System.out.println("ads");
                         super.keyTyped(e);
                         try {
@@ -223,8 +223,12 @@ public class Main implements Runnable{
             saveToPrint();
 
         });
-        settings.addActionListener(e -> settingsObj.start());
-        changeStyle.add(italic);
+        settings.addActionListener(e -> {
+
+            Settings settings1 = new Settings();
+            settings1.start();
+        });
+                changeStyle.add(italic);
         changeStyle.add(bold);
         changeStyle.add(underline);
         open.setAccelerator(KeyStroke.getKeyStroke('O', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
@@ -258,6 +262,7 @@ public class Main implements Runnable{
         chooser.addActionListener(e -> {
             try {
                 editor.save(chooser.getSelectedFile());
+                text.setName(chooser.getSelectedFile());
                 chooserFrame.setVisible(false);
             } catch (IOException ex) {
                 ex.printStackTrace();
@@ -267,15 +272,24 @@ public class Main implements Runnable{
         chooserFrame.setVisible(true);
     }
 
-    private void start() throws InterruptedException {
+    private void start(){
 
         System.out.println(System.getProperty("user.home"));
         Thread.currentThread().interrupt();
         menu();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         editor = new Editor();
+        text.setSuffix("");
         currentEditor = editor;
+        editor.getText().addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                super.keyReleased(e);
+                paneText += e.getKeyChar();
+                text.setText(paneText);
 
+            }
+        });
         panel.add(editor.getText(), Component.BOTTOM_ALIGNMENT);
         frame.add(panel);
         frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());

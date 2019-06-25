@@ -2,8 +2,6 @@ package src.main;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.io.*;
 
 public class Settings {
@@ -22,6 +20,7 @@ public class Settings {
     JPanel jPanel = new JPanel();
     JCheckBox jCheckBox = new JCheckBox();
     JEditorPane editorPane = new JEditorPane();
+
 
 
     private void save() {

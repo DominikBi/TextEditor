@@ -21,11 +21,15 @@ public class Editor extends JComponent {
     private boolean isBold;
     private Color fontColor;
     private int textSize;
+    private String endText;
 
+    public String getEndText() {
+        return endText;
+    }
 
-
-
-
+    public void setEndText(String endText) {
+        this.endText = endText;
+    }
 
     public boolean isLoad() {
         return file != null;
@@ -137,6 +141,11 @@ public class Editor extends JComponent {
                 stream.writeBoolean(modifiedText.isItalic);
                 stream.writeBoolean(modifiedText.isBold);
             }
+            FileInputStream fis = new FileInputStream(file + ".te");
+            while(fis.available() > 0){
+                endText += (char) fis.read();
+            }
+            System.out.println(endText);
 
 
         }
