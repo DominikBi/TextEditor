@@ -2,13 +2,12 @@ package src.main;
 
 import javax.swing.*;
 import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
 import java.io.File;
@@ -31,6 +30,7 @@ public class Main implements Runnable{
     int xCount;
     String paneText;
     Text text = new Text();
+    String[] fonts;
 
 
 
@@ -199,9 +199,16 @@ public class Main implements Runnable{
         JMenuItem bold = new JMenuItem("Bold");
         JMenuItem underline = new JMenuItem("Underline");
         JMenuItem saveToPrint = new JMenuItem("Save to Print");
-        JMenuItem fontFamily = new JMenuItem("Font");
+        JMenu fontFamily = new JMenu("Font");
         JMenu modify = new JMenu("Modify");
-
+        fontFamily.setMnemonic('T');
+        for(String font : fonts){
+            JMenuItem fontItem = new JMenuItem(font);
+            fontItem.addActionListener(e -> {
+                editor.setFontFamily(font);
+            });
+            fontFamily.add(fontItem);
+        }
         save.setAccelerator(KeyStroke.getKeyStroke('S',Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() )   );
         italic.addActionListener(e -> editor.setStyle(Font.ITALIC));
         bold.addActionListener(e -> editor.setStyle(Font.BOLD));
@@ -236,6 +243,7 @@ public class Main implements Runnable{
         saveToPrint.setAccelerator(KeyStroke.getKeyStroke('P', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
         menu.setMnemonic('F');
         modify.setMnemonic('M');
+        modify.add(fontFamily);
         menu.add(open);
         menu.add(close);
         menu.add(save);
@@ -273,12 +281,13 @@ public class Main implements Runnable{
     }
 
     private void start(){
-
+        fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
         System.out.println(System.getProperty("user.home"));
         Thread.currentThread().interrupt();
         menu();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         editor = new Editor();
+        editor.getText().setPreferredSize(new Dimension(frame.getWidth()-10,frame.getHeight()));
         text.setSuffix("");
         currentEditor = editor;
         editor.getText().addKeyListener(new KeyAdapter() {
@@ -288,6 +297,16 @@ public class Main implements Runnable{
                 paneText += e.getKeyChar();
                 text.setText(paneText);
 
+
+            }
+        });
+        frame.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                super.componentResized(e);
+                editor.getText().setPreferredSize(new Dimension(frame.getWidth() -40,frame.getHeight()));
+                System.out.println(frame.getSize());
+                System.out.println(frame.getWidth()/1920*20);
             }
         });
         panel.add(editor.getText(), Component.BOTTOM_ALIGNMENT);
