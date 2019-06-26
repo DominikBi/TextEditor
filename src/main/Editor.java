@@ -3,6 +3,8 @@ package src.main;
 import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.*;
 import java.util.ArrayList;
 
@@ -22,6 +24,7 @@ public class Editor extends JComponent {
     private int textSize;
     private String endText;
     private String fontFamily = "arial";
+    private Font currentFont = new Font();
 
     public String getEndText() {
         return endText;
@@ -51,6 +54,16 @@ public class Editor extends JComponent {
     public JTextPane getText() {
         text.setPreferredSize(new Dimension(Toolkit.getDefaultToolkit().getScreenSize().width - 30,Toolkit.getDefaultToolkit().getScreenSize().height/2));
         return text;
+    }
+    Editor(){
+        text.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyPressed(e);
+                StyledDocument doc = (StyledDocument) text.getDocument();
+                doc.setCharacterAttributes(text.getText().length(),1,mas,true);
+            }
+        });
     }
 
 
@@ -84,17 +97,22 @@ public class Editor extends JComponent {
         if (style == 1) {
             if (!StyleConstants.isBold(mas)) {
                 StyleConstants.setBold(mas, true);
+                currentFont.setBold(true);
             } else {
                 StyleConstants.setBold(mas, false);
+                currentFont.setBold(false);
             }
             isBold = !isBold;
+
         } else if (style == 2) {
             if (!StyleConstants.isItalic(mas)) {
                 StyleConstants.setItalic(mas, true);
+                currentFont.setItalic(true);
 
             } else {
                 StyleConstants.setItalic(mas, false);
                 System.out.println(StyleConstants.isItalic(mas));
+                currentFont.setItalic(false);
             }
             isItalic = !isItalic;
         }
@@ -102,20 +120,22 @@ public class Editor extends JComponent {
         int selLen = text.getSelectionEnd() - text.getSelectionStart();
 
         StyleConstants.setForeground(mas, color);
+        currentFont.setForeground(color);
         fontColor = color;
         if (sizeHasChanged) {
             StyleConstants.setFontSize(mas, size);
+            currentFont.setSize(size);
             textSize = size;
             sizeHasChanged = false;
         }
         StyleConstants.setFontFamily(mas, fontFamily);
+        currentFont.setFontFamily(fontFamily);
         System.out.println(selStart + " : " + selLen + " : " + StyleConstants.getFontSize(mas) + " : " + StyleConstants.getForeground(mas) + " : " + StyleConstants.isItalic(mas) + " : " + StyleConstants.isBold(mas));
         StyledDocument doc = (DefaultStyledDocument) text.getDocument();
 
         doc.setCharacterAttributes(selStart, selLen, mas, true);
 
         ModifiedTexts.add(new ModifiedText(selStart, selLen, StyleConstants.getForeground(mas), StyleConstants.getFontSize(mas), StyleConstants.isItalic(mas), StyleConstants.isBold(mas)));
-        StyleConstants.setFontSize(mas,12);
     }
 
     public void save(File file) throws IOException {
