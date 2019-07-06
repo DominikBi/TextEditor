@@ -14,6 +14,7 @@ public class Main implements Runnable{
     JFrame expFrame = new JFrame();
     JColorChooser colorChooser = new JColorChooser();
     JMenuBar menuBar = new JMenuBar();
+
     JMenu menu = new JMenu("File");
     Editor currentEditor;
     JTextPane selectedText = new JTextPane();
