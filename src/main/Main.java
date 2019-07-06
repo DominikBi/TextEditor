@@ -1,15 +1,8 @@
 package src.main;
 
 import javax.swing.*;
-import javax.swing.text.Style;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyleContext;
 import java.awt.*;
 import java.awt.event.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyVetoException;
-import java.beans.VetoableChangeListener;
 import java.io.File;
 import java.io.IOException;
 
@@ -199,7 +192,7 @@ public class Main implements Runnable{
         JMenuItem bold = new JMenuItem("Bold");
         JMenuItem underline = new JMenuItem("Underline");
         JMenuItem saveToPrint = new JMenuItem("Save to Print");
-        JMenu fontFamily = new JMenu("Font");
+        JMenu fontFamily = new JMenu("MyFont");
         JMenu modify = new JMenu("Modify");
         fontFamily.setMnemonic('T');
         for(String font : fonts){
@@ -282,8 +275,9 @@ public class Main implements Runnable{
 
     private void start(){
         fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
-        System.out.println(System.getProperty("user.home"));
-        Thread.currentThread().interrupt();
+        MyThread myThread = new MyThread();
+
+        myThread.start();
         menu();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         editor = new Editor();
@@ -294,6 +288,8 @@ public class Main implements Runnable{
             @Override
             public void keyReleased(KeyEvent e) {
                 super.keyReleased(e);
+                myThread.setup(editor.getText().getText(), editor.getFile(),".te", editor.getModifiedTexts());
+
                 paneText += e.getKeyChar();
                 text.setText(paneText);
 
@@ -305,8 +301,7 @@ public class Main implements Runnable{
             public void componentResized(ComponentEvent e) {
                 super.componentResized(e);
                 editor.getText().setPreferredSize(new Dimension(frame.getWidth() -40,frame.getHeight()));
-                System.out.println(frame.getSize());
-                System.out.println(frame.getWidth()/1920*20);
+
             }
         });
         panel.add(editor.getText(), Component.BOTTOM_ALIGNMENT);

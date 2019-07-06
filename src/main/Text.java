@@ -3,9 +3,9 @@ package src.main;
 import java.io.File;
 
 public class Text {
-    String text;
-    File path;
-    String suffix;
+    private volatile String text;
+    private volatile File path;
+    private volatile String suffix;
 
     public synchronized File getName() {
         return path;

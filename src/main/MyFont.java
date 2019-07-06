@@ -2,7 +2,7 @@ package src.main;
 
 import java.awt.*;
 
-public class Font {
+public class MyFont {
     int size;
     String fontFamily;
     boolean isBold;
