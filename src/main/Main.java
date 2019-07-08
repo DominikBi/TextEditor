@@ -37,7 +37,7 @@ public class Main implements Runnable{
     JMenu menu = new JMenu("File");
     JMenu modify = new JMenu("Modify");
     JMenu test = new JMenu("Test");
-    int i = 20;
+    int i = 35;
 
 
     public static void main(String[] args) throws InterruptedException {
@@ -50,18 +50,19 @@ public class Main implements Runnable{
             public void mouseDragged(MouseEvent e) {
                 for(JMenu jMenu : jMenus){
                     if(new Rectangle(jMenu.getX(),jMenu.getY(),jMenu.getX() + jMenu.getWidth(),jMenu.getY() + jMenu.getHeight()).contains(e.getPoint())){
-                        Rectangle oldModify = new Rectangle(activeMenu.getX(),activeMenu.getY(), activeMenu.getWidth(),activeMenu.getHeight());
+                        Rectangle oldRec = new Rectangle(activeMenu.getX(),activeMenu.getY(), activeMenu.getWidth(),activeMenu.getHeight());
+                        jMenu.setMenuLocation(oldRec.x,oldRec.y);
+                        System.out.println(jMenu.getX() + " : " +activeMenu.getX());
                         activeMenu.setMenuLocation(jMenu.getX(),jMenu.getY());
-                        jMenu.setMenuLocation(oldModify.width,oldModify.height);
                         jMenu.setPreferredSize(new Dimension(activeMenu.getPreferredSize().width +i,activeMenu.getPreferredSize().height));
-                        i=0;
-                        for(int i = 0; i < menuBar.getMenuCount();i++){
-
+                        for(JMenu jMenuz : jMenus) {
+                            menuBar.remove(jMenuz);
                         }
-                        menuBar.remove(jMenu);
                         menuBar.remove(activeMenu);
                         menuBar.add(activeMenu);
-                        menuBar.add(jMenu);
+                        for(JMenu jMenuz : jMenus) {
+                            menuBar.add(jMenuz);
+                        }
                         Dimension oldFrame = new Dimension(frame.getWidth(),frame.getHeight());
                         frame.setSize(oldFrame.width+1,oldFrame.height);
                         frame.setSize(oldFrame);
