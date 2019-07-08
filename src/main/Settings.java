@@ -3,6 +3,7 @@ package src.main;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
+import java.util.ArrayList;
 
 public class Settings {
     private boolean autoSave;

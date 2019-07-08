@@ -1,10 +1,19 @@
 package src.main;
 
+import org.w3c.dom.css.Rect;
+
+import javax.jws.Oneway;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyVetoException;
+import java.beans.VetoableChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.SortedSet;
 
 public class Main implements Runnable{
 
@@ -14,7 +23,7 @@ public class Main implements Runnable{
     JFrame expFrame = new JFrame();
     JColorChooser colorChooser = new JColorChooser();
     JMenuBar menuBar = new JMenuBar();
-    JMenu menu = new JMenu("File");
+
     Editor currentEditor;
     JTextPane selectedText = new JTextPane();
     public boolean autoSave;
@@ -24,14 +33,51 @@ public class Main implements Runnable{
     String paneText;
     Text text = new Text();
     String[] fonts;
-
+    ArrayList<JMenu> menus = new ArrayList<>();
+    JMenu menu = new JMenu("File");
+    JMenu modify = new JMenu("Modify");
+    JMenu test = new JMenu("Test");
+    int i = 20;
 
 
     public static void main(String[] args) throws InterruptedException {
         Main main = new Main();
         main.start();
     }
+    private MouseMotionListener getMouseListener(ArrayList<JMenu> jMenus, JMenu activeMenu){
+        MouseMotionListener mouseMotionListener = new MouseMotionListener() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                for(JMenu jMenu : jMenus){
+                    if(new Rectangle(jMenu.getX(),jMenu.getY(),jMenu.getX() + jMenu.getWidth(),jMenu.getY() + jMenu.getHeight()).contains(e.getPoint())){
+                        Rectangle oldModify = new Rectangle(activeMenu.getX(),activeMenu.getY(), activeMenu.getWidth(),activeMenu.getHeight());
+                        activeMenu.setMenuLocation(jMenu.getX(),jMenu.getY());
+                        jMenu.setMenuLocation(oldModify.width,oldModify.height);
+                        jMenu.setPreferredSize(new Dimension(activeMenu.getPreferredSize().width +i,activeMenu.getPreferredSize().height));
+                        i=0;
+                        for(int i = 0; i < menuBar.getMenuCount();i++){
 
+                        }
+                        menuBar.remove(jMenu);
+                        menuBar.remove(activeMenu);
+                        menuBar.add(activeMenu);
+                        menuBar.add(jMenu);
+                        Dimension oldFrame = new Dimension(frame.getWidth(),frame.getHeight());
+                        frame.setSize(oldFrame.width+1,oldFrame.height);
+                        frame.setSize(oldFrame);
+                        frame.repaint();
+                    }
+                }
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+
+            }
+        };
+
+    return mouseMotionListener;
+    }
     private void changeColor(){
         final JFrame frame = new JFrame("Change Color");
         JPanel panel = new JPanel();
@@ -51,7 +97,7 @@ public class Main implements Runnable{
     }
 
     private void close(){
-        final JFrame frame = new JFrame("Close");
+        JFrame frame = new JFrame("Close");
         this.frame.setTitle("");
         JPanel panel = new JPanel();
         JTextField textField = new JTextField("Do you really want to close youre file?");
@@ -71,8 +117,8 @@ public class Main implements Runnable{
 
     }
     private void newEditor(){
-        Editor editor = new Editor();
-        currentEditor = editor;
+        editor = new Editor();
+
 
     }
 
@@ -180,6 +226,8 @@ public class Main implements Runnable{
 
     public void menu(){
 
+        JMenu fontFamily = new JMenu("MyFont");
+        JMenu changeStyle = new JMenu("Change Text Style");
         JMenuItem settings = new JMenuItem("Settings");
         JMenuItem saveAs = new JMenuItem("Save As");
         JMenuItem color = new JMenuItem("Change Color");
@@ -187,13 +235,23 @@ public class Main implements Runnable{
         JMenuItem close = new JMenuItem("Close");
         JMenuItem save = new JMenuItem("Save");
         JMenuItem size = new JMenuItem("Modify size");
-        JMenu changeStyle = new JMenu("Change Text Style");
+
         JMenuItem italic = new JMenuItem("Italic");
         JMenuItem bold = new JMenuItem("Bold");
         JMenuItem underline = new JMenuItem("Underline");
         JMenuItem saveToPrint = new JMenuItem("Save to Print");
-        JMenu fontFamily = new JMenu("MyFont");
-        JMenu modify = new JMenu("Modify");
+        ArrayList<JMenu> alModify = new ArrayList<>();
+        ArrayList<JMenu> alFile = new ArrayList<>();
+        ArrayList<JMenu> alTest = new ArrayList<>();
+        alTest.add(menu);
+        alTest.add(modify);
+        alModify.add(menu);
+        alModify.add(test);
+        alFile.add(test);
+        alFile.add(modify);
+        modify.addMouseMotionListener(getMouseListener(alModify,modify));
+        menu.addMouseMotionListener(getMouseListener(alFile,menu));
+        test.addMouseMotionListener(getMouseListener(alTest,test));
         fontFamily.setMnemonic('T');
         for(String font : fonts){
             JMenuItem fontItem = new JMenuItem(font);
@@ -224,7 +282,10 @@ public class Main implements Runnable{
 
         });
         settings.addActionListener(e -> {
-
+            ArrayList<Integer> sizes = new ArrayList<>();
+            for(JMenu jMenu : menus){
+                sizes.add(jMenu.getX());
+            }
             Settings settings1 = new Settings();
             settings1.start();
         });
@@ -246,9 +307,14 @@ public class Main implements Runnable{
         modify.add(size);
         modify.add(changeStyle);
         modify.add(color);
+
         menuBar.add(menu);
         menuBar.add(modify);
+        menuBar.add(test);
         frame.setJMenuBar(menuBar);
+
+        menus.add(menu);
+        menus.add(modify);
 
     }
 
@@ -284,18 +350,7 @@ public class Main implements Runnable{
         editor.getText().setPreferredSize(new Dimension(frame.getWidth()-10,frame.getHeight()));
         text.setSuffix("");
         currentEditor = editor;
-        editor.getText().addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent e) {
-                super.keyReleased(e);
-                myThread.setup(editor.getText().getText(), editor.getFile(),".te", editor.getModifiedTexts());
 
-                paneText += e.getKeyChar();
-                text.setText(paneText);
-
-
-            }
-        });
         frame.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
@@ -327,4 +382,5 @@ public class Main implements Runnable{
             });
         }
     }
+
 }

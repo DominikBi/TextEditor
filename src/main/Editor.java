@@ -185,19 +185,15 @@ public class Editor extends JComponent {
         this.file = file;
         try (DataInputStream stream = new DataInputStream(new FileInputStream(file))) {
             String text1 = stream.readUTF();
-            System.out.println(text1);
             setText(text1);
             ArrayList<ModifiedText> modifiedTexts = new ArrayList<>();
             int x = stream.readInt();
-            System.out.println(x);
             for(int i = 0; i <  x; i++) {
                 ModifiedText modifiedText = new ModifiedText( stream.readShort(),stream.readShort(),new Color(stream.readInt(),stream.readInt(),stream.readInt()),stream.readShort(),stream.readBoolean(),stream.readBoolean());
                 modifiedTexts.add(modifiedText);
             }
 
 
-            System.out.println(text.getText());
-            System.out.println(modifiedTexts.size());
             for(ModifiedText modifiedText : modifiedTexts){
                 if(modifiedText.isBold) {
                     StyleConstants.setBold(ownMas, true);
@@ -208,12 +204,10 @@ public class Editor extends JComponent {
                 StyleConstants.setFontSize(ownMas,modifiedText.size);
                 StyleConstants.setForeground(ownMas,modifiedText.color);
                 StyledDocument doc = (DefaultStyledDocument) text.getDocument();
-                System.out.println(modifiedText.color + " : " + modifiedText.size + " : " + modifiedText.isBold + " : " + modifiedText.isItalic + " : " + modifiedText.start + " : " + modifiedText.len);
-                System.out.println(StyleConstants.getForeground(ownMas) + " : " + StyleConstants.getFontSize(ownMas) + " : " + StyleConstants.isBold(ownMas) + " : " + StyleConstants.isItalic(ownMas) + " : " + modifiedText.start + " : " + modifiedText.len);
                 doc.setCharacterAttributes(modifiedText.start,modifiedText.len,ownMas,true);
 
             }
-            System.out.println(text.getText());
+
         }
     }
     public void saveToPrint(File file) throws FileNotFoundException {
