@@ -1,7 +1,10 @@
 package src.main;
 
+import com.sun.javafx.iio.ios.IosImageLoader;
 import org.w3c.dom.css.Rect;
 
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
 import javax.jws.Oneway;
 import javax.swing.*;
 import java.awt.*;
@@ -11,6 +14,7 @@ import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.SortedSet;
@@ -38,6 +42,8 @@ public class Main implements Runnable{
     JMenu modify = new JMenu("Modify");
     JMenu test = new JMenu("Test");
     int i = 35;
+    String picRes = "";
+    Settings settings1 = new Settings();
 
 
     public static void main(String[] args) throws InterruptedException {
@@ -49,12 +55,15 @@ public class Main implements Runnable{
             @Override
             public void mouseDragged(MouseEvent e) {
                 for(JMenu jMenu : jMenus){
-                    if(new Rectangle(jMenu.getX(),jMenu.getY(),jMenu.getX() + jMenu.getWidth(),jMenu.getY() + jMenu.getHeight()).contains(e.getPoint())){
+                    if(new Rectangle(jMenu.getX(),jMenu.getY(),jMenu.getWidth(), jMenu.getHeight()).contains(e.getPoint())){
                         Rectangle oldRec = new Rectangle(activeMenu.getX(),activeMenu.getY(), activeMenu.getWidth(),activeMenu.getHeight());
+                        Rectangle oldJMenu = new Rectangle(jMenu.getX(),jMenu.getY(),jMenu.getWidth(),jMenu.getHeight());
                         jMenu.setMenuLocation(oldRec.x,oldRec.y);
                         System.out.println(jMenu.getX() + " : " +activeMenu.getX());
-                        activeMenu.setMenuLocation(jMenu.getX(),jMenu.getY());
-                        jMenu.setPreferredSize(new Dimension(activeMenu.getPreferredSize().width +i,activeMenu.getPreferredSize().height));
+                        activeMenu.setMenuLocation(oldJMenu.x,oldJMenu.y);
+                        jMenu.setPreferredSize(new Dimension(oldJMenu.width,oldJMenu.height));
+                        activeMenu.setPreferredSize(new Dimension(oldRec.width,oldRec.height));
+                        i=0;
                         for(JMenu jMenuz : jMenus) {
                             menuBar.remove(jMenuz);
                         }
@@ -63,6 +72,7 @@ public class Main implements Runnable{
                         for(JMenu jMenuz : jMenus) {
                             menuBar.add(jMenuz);
                         }
+                        //update frame
                         Dimension oldFrame = new Dimension(frame.getWidth(),frame.getHeight());
                         frame.setSize(oldFrame.width+1,oldFrame.height);
                         frame.setSize(oldFrame);
@@ -143,9 +153,7 @@ public class Main implements Runnable{
         frame.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width/2-100,Toolkit.getDefaultToolkit().getScreenSize().height/2-100);
         frame.setVisible(true);
     }
-    private void fontFamily(){
 
-    }
     private void settingz(){
         JFrame chooserFrame = new JFrame();
         JPanel panel = new JPanel();
@@ -192,7 +200,7 @@ public class Main implements Runnable{
         chooser.addActionListener(e -> {
             try {
                 editor.saveToPrint(chooser.getSelectedFile());
-                frame.setTitle(chooser.getSelectedFile().getName());
+                frame.setTitle(chooser.getSelectedFile().getName() + "[" + editor.getFile().getAbsolutePath() + "]" + " - " +programmName);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -211,10 +219,11 @@ public class Main implements Runnable{
             if (e.getActionCommand().equals("ApproveSelection")) {
                 try {
                     editor.load(fileChooser.getSelectedFile());
+
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
-                frame.setTitle(editor.getFile().getName());
+                this.frame.setTitle(editor.getFile().getName() + " [" + editor.getFile() + "]" + " - " +programmName);
                 expFrame.setVisible(false);
             }
         });
@@ -287,7 +296,7 @@ public class Main implements Runnable{
             for(JMenu jMenu : menus){
                 sizes.add(jMenu.getX());
             }
-            Settings settings1 = new Settings();
+
             settings1.start();
         });
                 changeStyle.add(italic);
@@ -342,6 +351,7 @@ public class Main implements Runnable{
 
     private void start(){
         fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+        frame.setTitle("Unknown File" + " - " + programmName);
         MyThread myThread = new MyThread();
 
         myThread.start();
@@ -360,6 +370,15 @@ public class Main implements Runnable{
 
             }
         });
+        Image icon = null;
+        try {
+            icon = ImageIO.read(new URL(picRes));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        frame.setIconImage(icon);
+        Thread darkModeThread = new Thread();
+        darkModeThread.start();
         panel.add(editor.getText(), Component.BOTTOM_ALIGNMENT);
         frame.add(panel);
         frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
@@ -377,11 +396,20 @@ public class Main implements Runnable{
 
     @Override
     public void run() {
-        while(autoSave){
-            editor.getText().addVetoableChangeListener(evt -> {
-                save();
-            });
+        long currentMillis = System.currentTimeMillis();
+        while(true){
+
+            if(currentMillis + 1000 == System.currentTimeMillis()){
+                if(settings1.isDarkmode()){
+
+                }
+
+                currentMillis+=1000;
+
+            }
+
+
+            }
         }
     }
 
-}
