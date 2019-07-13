@@ -1,84 +1,63 @@
 package src.main;
 
-import com.sun.javafx.iio.ios.IosImageLoader;
-import org.w3c.dom.css.Rect;
-
-import javax.imageio.IIOImage;
+import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
-import javax.jws.Oneway;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyVetoException;
-import java.beans.VetoableChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Set;
-import java.util.SortedSet;
+import java.util.Objects;
 
 public class Main implements Runnable{
 
 
-    JFrame frame = new JFrame("Unknown File");
-    JPanel panel = new JPanel();
-    JFrame expFrame = new JFrame();
-    JColorChooser colorChooser = new JColorChooser();
-    JMenuBar menuBar = new JMenuBar();
+    private JFrame frame = new JFrame("Unknown File");
+    private JPanel panel = new JPanel();
+    private JFrame expFrame = new JFrame();
+    private JColorChooser colorChooser = new JColorChooser();
+    private JMenuBar menuBar = new JMenuBar();
 
-    Editor currentEditor;
-    JTextPane selectedText = new JTextPane();
     public boolean autoSave;
-    Editor editor;
-    String programmName = "TextEditor";
-    int xCount;
-    String paneText;
-    Text text = new Text();
-    String[] fonts;
-    ArrayList<JMenu> menus = new ArrayList<>();
-    JMenu menu = new JMenu("File");
-    JMenu modify = new JMenu("Modify");
-    JMenu test = new JMenu("Test");
+    public Editor editor;
+    private String programmName = "TextEditor";
+    private Text text = new Text();
+    private String[] fonts;
+    private ArrayList<JMenu> menus = new ArrayList<>();
+    private JMenu menu = new JMenu("File");
+    private JMenu modify = new JMenu("Modify");
+    private JMenu test = new JMenu("Test");
     int i = 35;
-    String picRes = "";
-    Settings settings1 = new Settings();
+    private String picRes = "https://image.flaticon.com/icons/svg/196/196308.svg";
+    private Settings settings1 = new Settings();
 
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         Main main = new Main();
         main.start();
     }
     private MouseMotionListener getMouseListener(ArrayList<JMenu> jMenus, JMenu activeMenu){
-        MouseMotionListener mouseMotionListener = new MouseMotionListener() {
+
+        return new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent e) {
                 for(JMenu jMenu : jMenus){
-                    if(new Rectangle(jMenu.getX(),jMenu.getY(),jMenu.getWidth(), jMenu.getHeight()).contains(e.getPoint())){
-                        Rectangle oldRec = new Rectangle(activeMenu.getX(),activeMenu.getY(), activeMenu.getWidth(),activeMenu.getHeight());
-                        Rectangle oldJMenu = new Rectangle(jMenu.getX(),jMenu.getY(),jMenu.getWidth(),jMenu.getHeight());
-                        jMenu.setMenuLocation(oldRec.x,oldRec.y);
-                        System.out.println(jMenu.getX() + " : " +activeMenu.getX());
-                        activeMenu.setMenuLocation(oldJMenu.x,oldJMenu.y);
-                        jMenu.setPreferredSize(new Dimension(oldJMenu.width,oldJMenu.height));
-                        activeMenu.setPreferredSize(new Dimension(oldRec.width,oldRec.height));
-                        i=0;
-                        for(JMenu jMenuz : jMenus) {
-                            menuBar.remove(jMenuz);
+                        if(new Rectangle(jMenu.getX(),jMenu.getY(),jMenu.getWidth(), jMenu.getHeight()).contains(e.getPoint())){
+
+                            Rectangle jMenuOldPos = new Rectangle(jMenu.getX(),jMenu.getY(),jMenu.getWidth(), jMenu.getHeight());
+                            Rectangle activeMenuOldPos = new Rectangle(activeMenu.getX(),activeMenu.getY(),activeMenu.getWidth(),activeMenu.getHeight());
+                            System.out.println(activeMenuOldPos + " : " +jMenuOldPos);
+                            jMenu.setLocation(activeMenuOldPos.x,activeMenuOldPos.y);
+                            activeMenu.setLocation(jMenuOldPos.x,jMenuOldPos.y);
+                            jMenu.setPreferredSize(new Dimension(jMenuOldPos.width,jMenuOldPos.height));
+                            activeMenu.setPreferredSize(new Dimension(activeMenuOldPos.width,activeMenuOldPos.height));
+                            System.out.println(jMenu.getText());
+
                         }
-                        menuBar.remove(activeMenu);
-                        menuBar.add(activeMenu);
-                        for(JMenu jMenuz : jMenus) {
-                            menuBar.add(jMenuz);
-                        }
-                        //update frame
-                        Dimension oldFrame = new Dimension(frame.getWidth(),frame.getHeight());
-                        frame.setSize(oldFrame.width+1,oldFrame.height);
-                        frame.setSize(oldFrame);
-                        frame.repaint();
                     }
-                }
+
             }
 
             @Override
@@ -86,8 +65,6 @@ public class Main implements Runnable{
 
             }
         };
-
-    return mouseMotionListener;
     }
     private void changeColor(){
         final JFrame frame = new JFrame("Change Color");
@@ -136,14 +113,14 @@ public class Main implements Runnable{
     private void modifySize(){
         final JFrame frame = new JFrame("Size");
         JPanel panel = new JPanel();
-        JComboBox comboBox = new JComboBox();
+        JComboBox<Integer> comboBox = new JComboBox<>();
         JButton button = new JButton("OK");
         for(int i = 2; i< 128; i+=2){
             comboBox.addItem(i);
         }
         button.addActionListener(e -> {
             frame.setVisible(false);
-            editor.setSize(Integer.parseInt(comboBox.getSelectedItem().toString()));
+            editor.setSize(Integer.parseInt(Objects.requireNonNull(comboBox.getSelectedItem()).toString()));
    });
 
         panel.add(comboBox);
@@ -234,9 +211,9 @@ public class Main implements Runnable{
         expFrame.setVisible(true);
     }
 
-    public void menu(){
+    private void menu(){
 
-        JMenu fontFamily = new JMenu("MyFont");
+        JMenu fontFamily = new JMenu("Font");
         JMenu changeStyle = new JMenu("Change Text Style");
         JMenuItem settings = new JMenuItem("Settings");
         JMenuItem saveAs = new JMenuItem("Save As");
@@ -265,9 +242,7 @@ public class Main implements Runnable{
         fontFamily.setMnemonic('T');
         for(String font : fonts){
             JMenuItem fontItem = new JMenuItem(font);
-            fontItem.addActionListener(e -> {
-                editor.setFontFamily(font);
-            });
+            fontItem.addActionListener(e -> editor.setFontFamily(font));
             fontFamily.add(fontItem);
         }
         save.setAccelerator(KeyStroke.getKeyStroke('S',Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() )   );
@@ -287,10 +262,7 @@ public class Main implements Runnable{
         close.addActionListener(e -> close());
         open.addActionListener(e -> explorer());
         saveAs.addActionListener(e -> saveAs());
-        saveToPrint.addActionListener(e -> {
-            saveToPrint();
-
-        });
+        saveToPrint.addActionListener(e -> saveToPrint());
         settings.addActionListener(e -> {
             ArrayList<Integer> sizes = new ArrayList<>();
             for(JMenu jMenu : menus){
@@ -321,6 +293,10 @@ public class Main implements Runnable{
         menuBar.add(menu);
         menuBar.add(modify);
         menuBar.add(test);
+        Icon modifyIcon = new ImageIcon(System.getProperty("user.home") +System.getProperty("file.separator") +  "TeRes" + System.getProperty("file.separator") + "modifyIcon.png");
+        modify.setIcon(modifyIcon);
+        Icon fileIcon = new ImageIcon(System.getProperty("user.home") +System.getProperty("file.separator") +  "TeRes" + System.getProperty("file.separator") + "fileIcon.png");
+        menu.setIcon(fileIcon);
         frame.setJMenuBar(menuBar);
 
         menus.add(menu);
@@ -360,7 +336,6 @@ public class Main implements Runnable{
         editor = new Editor();
         editor.getText().setPreferredSize(new Dimension(frame.getWidth()-10,frame.getHeight()));
         text.setSuffix("");
-        currentEditor = editor;
 
         frame.addComponentListener(new ComponentAdapter() {
             @Override
@@ -372,11 +347,38 @@ public class Main implements Runnable{
         });
         Image icon = null;
         try {
-            icon = ImageIO.read(new URL(picRes));
+
+
+                URL url = new URL(picRes);
+                icon = ImageIO.read(url);
+                if(icon == null){
+                    File file = new File(System.getProperty("user.home") + System.getProperty("file.separator") + "TeRes" + System.getProperty("file.separator") + "th.jpg");
+                    System.out.println(file);
+                    try {
+                        icon = ImageIO.read(file);
+                        System.out.println("Icon from: " +file);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    System.out.println("Icon from: " + url);
+                }
+
+        }catch (IIOException e1){
+            File file = new File(System.getProperty("user.home") + System.getProperty("file.separator") + "TeRes" + System.getProperty("file.separator") + "th.jpg");
+            try {
+                icon = ImageIO.read(file);
+                System.out.println("Icon from: " +file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         frame.setIconImage(icon);
+
         Thread darkModeThread = new Thread();
         darkModeThread.start();
         panel.add(editor.getText(), Component.BOTTOM_ALIGNMENT);
@@ -401,6 +403,7 @@ public class Main implements Runnable{
 
             if(currentMillis + 1000 == System.currentTimeMillis()){
                 if(settings1.isDarkmode()){
+                        //inWork
 
                 }
 
