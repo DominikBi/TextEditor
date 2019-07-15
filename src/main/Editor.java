@@ -25,6 +25,7 @@ public class Editor extends JComponent {
     private String endText;
     private String fontFamily = "arial";
     private MyFont currentMyFont = new MyFont();
+    private float spaceBelow = StyleConstants.getSpaceBelow(mas);
 
     public String getEndText() {
         return endText;
@@ -98,6 +99,10 @@ public class Editor extends JComponent {
     public void setCurrentMyFont(MyFont currentMyFont) {
         this.currentMyFont = currentMyFont;
     }
+    public void setSpaceBelow(float spaceBelow){
+        this.spaceBelow = spaceBelow;
+
+    }
 
     public void setStyle(int style) {
 
@@ -136,6 +141,7 @@ public class Editor extends JComponent {
             textSize = size;
             sizeHasChanged = false;
         }
+        StyleConstants.setSpaceBelow(mas,spaceBelow);
         StyleConstants.setFontFamily(mas, fontFamily);
         currentMyFont.setFontFamily(fontFamily);
         System.out.println(selStart + " : " + selLen + " : " + StyleConstants.getFontSize(mas) + " : " + StyleConstants.getForeground(mas) + " : " + StyleConstants.isItalic(mas) + " : " + StyleConstants.isBold(mas));
@@ -143,7 +149,7 @@ public class Editor extends JComponent {
 
         doc.setCharacterAttributes(selStart, selLen, mas, true);
 
-        ModifiedTexts.add(new ModifiedText(selStart, selLen, StyleConstants.getForeground(mas), StyleConstants.getFontSize(mas), StyleConstants.isItalic(mas), StyleConstants.isBold(mas)));
+        ModifiedTexts.add(new ModifiedText(selStart, selLen, StyleConstants.getForeground(mas), StyleConstants.getFontSize(mas), StyleConstants.isItalic(mas), StyleConstants.isBold(mas),spaceBelow));
     }
 
     public ArrayList<ModifiedText> getModifiedTexts() {
@@ -169,6 +175,7 @@ public class Editor extends JComponent {
                 stream.writeShort(modifiedText.size);
                 stream.writeBoolean(modifiedText.isItalic);
                 stream.writeBoolean(modifiedText.isBold);
+                stream.writeFloat(modifiedText.spaceBelow);
             }
             FileInputStream fis = new FileInputStream(file + ".te");
             while(fis.available() > 0){
@@ -189,7 +196,7 @@ public class Editor extends JComponent {
             ArrayList<ModifiedText> modifiedTexts = new ArrayList<>();
             int x = stream.readInt();
             for(int i = 0; i <  x; i++) {
-                ModifiedText modifiedText = new ModifiedText( stream.readShort(),stream.readShort(),new Color(stream.readInt(),stream.readInt(),stream.readInt()),stream.readShort(),stream.readBoolean(),stream.readBoolean());
+                ModifiedText modifiedText = new ModifiedText( stream.readShort(),stream.readShort(),new Color(stream.readInt(),stream.readInt(),stream.readInt()),stream.readShort(),stream.readBoolean(),stream.readBoolean(),stream.readFloat());
                 modifiedTexts.add(modifiedText);
             }
 
@@ -203,6 +210,7 @@ public class Editor extends JComponent {
                 }
                 StyleConstants.setFontSize(ownMas,modifiedText.size);
                 StyleConstants.setForeground(ownMas,modifiedText.color);
+                StyleConstants.setSpaceBelow(mas,spaceBelow);
                 StyledDocument doc = (DefaultStyledDocument) text.getDocument();
                 doc.setCharacterAttributes(modifiedText.start,modifiedText.len,ownMas,true);
 

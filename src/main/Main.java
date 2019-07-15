@@ -210,6 +210,27 @@ public class Main implements Runnable{
         expFrame.setSize(550, 400);
         expFrame.setVisible(true);
     }
+    private void spaceBelowInterface(){
+        JFrame spaceBelowFrame= new JFrame("Set space below");
+        JPanel spaceBelowPanel = new JPanel();
+        JTextField textField = new JTextField();
+        JButton button = new JButton("Submit");
+        button.addActionListener(e -> {
+            float arg = Float.parseFloat(textField.getText());
+            editor.setSpaceBelow(arg);
+            spaceBelowFrame.setVisible(false);
+        });
+        spaceBelowPanel.add(textField);
+        spaceBelowPanel.add(button);
+        spaceBelowFrame.add(spaceBelowPanel);
+        spaceBelowFrame.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width/2-100,Toolkit.getDefaultToolkit().getScreenSize().height/2-100);
+        spaceBelowFrame.setSize(new Dimension(400,160));
+        textField.setPreferredSize(new Dimension(200,80));
+        button.setPreferredSize(new Dimension(200/2,80/2));
+        spaceBelowFrame.setVisible(true);
+
+
+    }
 
     private void menu(){
 
@@ -227,6 +248,7 @@ public class Main implements Runnable{
         JMenuItem bold = new JMenuItem("Bold");
         JMenuItem underline = new JMenuItem("Underline");
         JMenuItem saveToPrint = new JMenuItem("Save to Print");
+        JMenuItem spaceBelow = new JMenuItem("Space Below line");
         ArrayList<JMenu> alModify = new ArrayList<>();
         ArrayList<JMenu> alFile = new ArrayList<>();
         ArrayList<JMenu> alTest = new ArrayList<>();
@@ -245,6 +267,7 @@ public class Main implements Runnable{
             fontItem.addActionListener(e -> editor.setFontFamily(font));
             fontFamily.add(fontItem);
         }
+        spaceBelow.addActionListener(e -> spaceBelowInterface());
         save.setAccelerator(KeyStroke.getKeyStroke('S',Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() )   );
         italic.addActionListener(e -> editor.setStyle(Font.ITALIC));
         bold.addActionListener(e -> editor.setStyle(Font.BOLD));
@@ -288,7 +311,9 @@ public class Main implements Runnable{
         menu.add(settings);
         modify.add(size);
         modify.add(changeStyle);
+        modify.add(spaceBelow);
         modify.add(color);
+
 
         menuBar.add(menu);
         menuBar.add(modify);
