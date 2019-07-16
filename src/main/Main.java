@@ -3,6 +3,9 @@ package src.main;
 import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
+import javax.swing.text.StyleConstants;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -233,7 +236,7 @@ public class Main implements Runnable{
     }
 
     private void menu(){
-
+        JMenuBar modifyMenu = new JMenuBar();
         JMenu fontFamily = new JMenu("Font");
         JMenu changeStyle = new JMenu("Change Text Style");
         JMenuItem settings = new JMenuItem("Settings");
@@ -243,7 +246,7 @@ public class Main implements Runnable{
         JMenuItem close = new JMenuItem("Close");
         JMenuItem save = new JMenuItem("Save");
         JMenuItem size = new JMenuItem("Modify size");
-
+        JMenu backToMenu = new JMenu("Back");
         JMenuItem italic = new JMenuItem("Italic");
         JMenuItem bold = new JMenuItem("Bold");
         JMenuItem underline = new JMenuItem("Underline");
@@ -258,6 +261,22 @@ public class Main implements Runnable{
         alModify.add(test);
         alFile.add(test);
         alFile.add(modify);
+        modify.addMenuListener(new MenuListener() {
+            @Override
+            public void menuSelected(MenuEvent e) {
+                frame.setJMenuBar(modifyMenu);
+            }
+
+            @Override
+            public void menuDeselected(MenuEvent e) {
+
+            }
+
+            @Override
+            public void menuCanceled(MenuEvent e) {
+
+            }
+        });
         modify.addMouseMotionListener(getMouseListener(alModify,modify));
         menu.addMouseMotionListener(getMouseListener(alFile,menu));
         test.addMouseMotionListener(getMouseListener(alTest,test));
@@ -267,6 +286,23 @@ public class Main implements Runnable{
             fontItem.addActionListener(e -> editor.setFontFamily(font));
             fontFamily.add(fontItem);
         }
+        backToMenu.addMenuListener(new MenuListener() {
+            @Override
+            public void menuSelected(MenuEvent e) {
+                frame.setJMenuBar(menuBar);
+            }
+
+            @Override
+            public void menuDeselected(MenuEvent e) {
+
+            }
+
+            @Override
+            public void menuCanceled(MenuEvent e) {
+
+            }
+        });
+
         spaceBelow.addActionListener(e -> spaceBelowInterface());
         save.setAccelerator(KeyStroke.getKeyStroke('S',Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() )   );
         italic.addActionListener(e -> editor.setStyle(Font.ITALIC));
@@ -274,7 +310,7 @@ public class Main implements Runnable{
         color.addActionListener(e -> changeColor());
         size.addActionListener(e -> modifySize());
 
-        underline.addActionListener(e -> editor.setSize(3));
+        underline.addActionListener(e -> editor.setStyle(3));
                 save.addActionListener(e -> {
                     if (editor.isLoad()) {
                         save();
@@ -303,6 +339,7 @@ public class Main implements Runnable{
         menu.setMnemonic('F');
         modify.setMnemonic('M');
         modify.add(fontFamily);
+        modifyMenu.add(backToMenu);
         menu.add(open);
         menu.add(close);
         menu.add(save);
@@ -322,6 +359,7 @@ public class Main implements Runnable{
         modify.setIcon(modifyIcon);
         Icon fileIcon = new ImageIcon(System.getProperty("user.home") +System.getProperty("file.separator") +  "TeRes" + System.getProperty("file.separator") + "fileIcon.png");
         menu.setIcon(fileIcon);
+
         frame.setJMenuBar(menuBar);
 
         menus.add(menu);

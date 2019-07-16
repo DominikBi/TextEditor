@@ -26,6 +26,7 @@ public class Editor extends JComponent {
     private String fontFamily = "arial";
     private MyFont currentMyFont = new MyFont();
     private float spaceBelow = StyleConstants.getSpaceBelow(mas);
+    private boolean isUnderlined;
 
     public String getEndText() {
         return endText;
@@ -129,9 +130,17 @@ public class Editor extends JComponent {
             }
             isItalic = !isItalic;
         }
+        else if(style == 3){
+            if(!StyleConstants.isUnderline(mas)){
+                StyleConstants.setUnderline(mas,true);
+
+
+            } else {
+                StyleConstants.setUnderline(mas,false);
+            }
+        }
         int selStart = text.getSelectionStart();
         int selLen = text.getSelectionEnd() - text.getSelectionStart();
-
         StyleConstants.setForeground(mas, color);
         currentMyFont.setForeground(color);
         fontColor = color;
@@ -149,7 +158,7 @@ public class Editor extends JComponent {
 
         doc.setCharacterAttributes(selStart, selLen, mas, true);
 
-        ModifiedTexts.add(new ModifiedText(selStart, selLen, StyleConstants.getForeground(mas), StyleConstants.getFontSize(mas), StyleConstants.isItalic(mas), StyleConstants.isBold(mas),spaceBelow));
+        ModifiedTexts.add(new ModifiedText(selStart, selLen, StyleConstants.getForeground(mas), StyleConstants.getFontSize(mas), StyleConstants.isItalic(mas), StyleConstants.isBold(mas),StyleConstants.getSpaceBelow(mas), StyleConstants.isUnderline(mas)));
     }
 
     public ArrayList<ModifiedText> getModifiedTexts() {
@@ -162,7 +171,7 @@ public class Editor extends JComponent {
 
     public void save(File file) throws IOException {
         this.file = file;
-        try (DataOutputStream stream = new DataOutputStream(new FileOutputStream(file + ".te"))) {
+        try (DataOutputStream stream = new DataOutputStream(new FileOutputStream(file + ".txt"))) {
 
             stream.writeUTF(text.getText());
             stream.writeInt(ModifiedTexts.size());
@@ -176,8 +185,9 @@ public class Editor extends JComponent {
                 stream.writeBoolean(modifiedText.isItalic);
                 stream.writeBoolean(modifiedText.isBold);
                 stream.writeFloat(modifiedText.spaceBelow);
+                stream.writeBoolean(modifiedText.isUnderlined);
             }
-            FileInputStream fis = new FileInputStream(file + ".te");
+            FileInputStream fis = new FileInputStream(file + ".txt");
             while(fis.available() > 0){
                 endText += (char) fis.read();
             }
@@ -196,7 +206,7 @@ public class Editor extends JComponent {
             ArrayList<ModifiedText> modifiedTexts = new ArrayList<>();
             int x = stream.readInt();
             for(int i = 0; i <  x; i++) {
-                ModifiedText modifiedText = new ModifiedText( stream.readShort(),stream.readShort(),new Color(stream.readInt(),stream.readInt(),stream.readInt()),stream.readShort(),stream.readBoolean(),stream.readBoolean(),stream.readFloat());
+                ModifiedText modifiedText = new ModifiedText( stream.readShort(),stream.readShort(),new Color(stream.readInt(),stream.readInt(),stream.readInt()),stream.readShort(),stream.readBoolean(),stream.readBoolean(),stream.readFloat(), stream.readBoolean());
                 modifiedTexts.add(modifiedText);
             }
 
@@ -208,9 +218,13 @@ public class Editor extends JComponent {
                 if(modifiedText.isItalic){
                     StyleConstants.setItalic(ownMas,true);
                 }
+                if(modifiedText.isUnderlined){
+                    StyleConstants.setUnderline(ownMas,true);
+                }
                 StyleConstants.setFontSize(ownMas,modifiedText.size);
                 StyleConstants.setForeground(ownMas,modifiedText.color);
-                StyleConstants.setSpaceBelow(mas,spaceBelow);
+                StyleConstants.setSpaceBelow(ownMas,modifiedText.spaceBelow);
+
                 StyledDocument doc = (DefaultStyledDocument) text.getDocument();
                 doc.setCharacterAttributes(modifiedText.start,modifiedText.len,ownMas,true);
 
