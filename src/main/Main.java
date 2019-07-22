@@ -5,7 +5,6 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
-import javax.swing.text.StyleConstants;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -22,19 +21,20 @@ public class Main implements Runnable{
     private JFrame expFrame = new JFrame();
     private JColorChooser colorChooser = new JColorChooser();
     private JMenuBar menuBar = new JMenuBar();
-
-    public boolean autoSave;
+    private JMenu wordCount;
+    public boolean darkmode;
     public Editor editor;
-    private String programmName = "TextEditor";
+    private String programmName = "Sonit";
     private Text text = new Text();
     private String[] fonts;
     private ArrayList<JMenu> menus = new ArrayList<>();
     private JMenu menu = new JMenu("File");
     private JMenu modify = new JMenu("Modify");
     private JMenu test = new JMenu("Test");
-    int i = 35;
+
     private String picRes = "https://image.flaticon.com/icons/svg/196/196308.svg";
     private Settings settings1 = new Settings();
+    private String resFolder = "SonitRes";
 
 
     public static void main(String[] args) {
@@ -123,7 +123,7 @@ public class Main implements Runnable{
         }
         button.addActionListener(e -> {
             frame.setVisible(false);
-            editor.setSize(Integer.parseInt(Objects.requireNonNull(comboBox.getSelectedItem()).toString()));
+            editor.setTextSize(Integer.parseInt(Objects.requireNonNull(comboBox.getSelectedItem()).toString()));
    });
 
         panel.add(comboBox);
@@ -199,7 +199,7 @@ public class Main implements Runnable{
             if (e.getActionCommand().equals("ApproveSelection")) {
                 try {
                     editor.load(fileChooser.getSelectedFile());
-
+                    wordCount.setText("Words: " + editor.getText().getText().split(" ").length + " Chars: " + editor.getText().getText().toCharArray().length);
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
@@ -236,7 +236,6 @@ public class Main implements Runnable{
     }
 
     private void menu(){
-        JMenuBar modifyMenu = new JMenuBar();
         JMenu fontFamily = new JMenu("Font");
         JMenu changeStyle = new JMenu("Change Text Style");
         JMenuItem settings = new JMenuItem("Settings");
@@ -245,13 +244,12 @@ public class Main implements Runnable{
         JMenuItem open = new JMenuItem("Open");
         JMenuItem close = new JMenuItem("Close");
         JMenuItem save = new JMenuItem("Save");
-        JMenuItem size = new JMenuItem("Modify size");
-        JMenu backToMenu = new JMenu("Back");
+        JMenuItem size = new JMenuItem("Size");
         JMenuItem italic = new JMenuItem("Italic");
         JMenuItem bold = new JMenuItem("Bold");
         JMenuItem underline = new JMenuItem("Underline");
         JMenuItem saveToPrint = new JMenuItem("Save to Print");
-        JMenuItem spaceBelow = new JMenuItem("Space Below line");
+        JMenu spaceBelow = new JMenu("Space Below Text");
         ArrayList<JMenu> alModify = new ArrayList<>();
         ArrayList<JMenu> alFile = new ArrayList<>();
         ArrayList<JMenu> alTest = new ArrayList<>();
@@ -261,22 +259,6 @@ public class Main implements Runnable{
         alModify.add(test);
         alFile.add(test);
         alFile.add(modify);
-        modify.addMenuListener(new MenuListener() {
-            @Override
-            public void menuSelected(MenuEvent e) {
-                frame.setJMenuBar(modifyMenu);
-            }
-
-            @Override
-            public void menuDeselected(MenuEvent e) {
-
-            }
-
-            @Override
-            public void menuCanceled(MenuEvent e) {
-
-            }
-        });
         modify.addMouseMotionListener(getMouseListener(alModify,modify));
         menu.addMouseMotionListener(getMouseListener(alFile,menu));
         test.addMouseMotionListener(getMouseListener(alTest,test));
@@ -286,30 +268,14 @@ public class Main implements Runnable{
             fontItem.addActionListener(e -> editor.setFontFamily(font));
             fontFamily.add(fontItem);
         }
-        backToMenu.addMenuListener(new MenuListener() {
-            @Override
-            public void menuSelected(MenuEvent e) {
-                frame.setJMenuBar(menuBar);
-            }
-
-            @Override
-            public void menuDeselected(MenuEvent e) {
-
-            }
-
-            @Override
-            public void menuCanceled(MenuEvent e) {
-
-            }
-        });
 
         spaceBelow.addActionListener(e -> spaceBelowInterface());
         save.setAccelerator(KeyStroke.getKeyStroke('S',Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() )   );
         italic.addActionListener(e -> editor.setStyle(Font.ITALIC));
         bold.addActionListener(e -> editor.setStyle(Font.BOLD));
         color.addActionListener(e -> changeColor());
-        size.addActionListener(e -> modifySize());
 
+        size.addActionListener(e -> modifySize());
         underline.addActionListener(e -> editor.setStyle(3));
                 save.addActionListener(e -> {
                     if (editor.isLoad()) {
@@ -339,25 +305,26 @@ public class Main implements Runnable{
         menu.setMnemonic('F');
         modify.setMnemonic('M');
         modify.add(fontFamily);
-        modifyMenu.add(backToMenu);
+
+        Icon modifyIcon = new ImageIcon(System.getProperty("user.home") +System.getProperty("file.separator") +  resFolder + System.getProperty("file.separator") + "modifyIcon.png");
+
+
         menu.add(open);
         menu.add(close);
         menu.add(save);
         menu.add(saveAs);
         menu.add(saveToPrint);
         menu.add(settings);
-        modify.add(size);
         modify.add(changeStyle);
+        modify.add(size);
         modify.add(spaceBelow);
         modify.add(color);
-
-
         menuBar.add(menu);
         menuBar.add(modify);
         menuBar.add(test);
-        Icon modifyIcon = new ImageIcon(System.getProperty("user.home") +System.getProperty("file.separator") +  "TeRes" + System.getProperty("file.separator") + "modifyIcon.png");
+
         modify.setIcon(modifyIcon);
-        Icon fileIcon = new ImageIcon(System.getProperty("user.home") +System.getProperty("file.separator") +  "TeRes" + System.getProperty("file.separator") + "fileIcon.png");
+        Icon fileIcon = new ImageIcon(System.getProperty("user.home") +System.getProperty("file.separator") +  resFolder + System.getProperty("file.separator") + "fileIcon.png");
         menu.setIcon(fileIcon);
 
         frame.setJMenuBar(menuBar);
@@ -395,11 +362,18 @@ public class Main implements Runnable{
 
         myThread.start();
         menu();
+
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         editor = new Editor();
         editor.getText().setPreferredSize(new Dimension(frame.getWidth()-10,frame.getHeight()));
         text.setSuffix("");
-
+        settings1.check();
+        darkmode = settings1.isDarkmode();
+        if(darkmode){
+            frame.setBackground(Color.darkGray);
+            editor.getText().setForeground(Color.GRAY);
+            menuBar.setBackground(Color.lightGray);
+        }
         frame.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
@@ -415,11 +389,11 @@ public class Main implements Runnable{
                 URL url = new URL(picRes);
                 icon = ImageIO.read(url);
                 if(icon == null){
-                    File file = new File(System.getProperty("user.home") + System.getProperty("file.separator") + "TeRes" + System.getProperty("file.separator") + "th.jpg");
+                    File file = new File(System.getProperty("user.home") + System.getProperty("file.separator") + resFolder + System.getProperty("file.separator") + "th.jpg");
                     System.out.println(file);
                     try {
                         icon = ImageIO.read(file);
-                        System.out.println("Icon from: " +file);
+                        System.out.println("Icon from: " + file);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -442,9 +416,20 @@ public class Main implements Runnable{
 
         frame.setIconImage(icon);
 
-        Thread darkModeThread = new Thread();
+        Thread darkModeThread =  new Thread();
         darkModeThread.start();
+        wordCount = new JMenu("Words: " + editor.getText().getText().split(" ").length + " Chars: " + editor.getText().getText().toCharArray().length);
+        editor.getText().addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+                wordCount.setText("Words: " + editor.getText().getText().split(" ").length + " Chars: " + editor.getText().getText().toCharArray().length);
+                super.keyTyped(e);
+            }
+        });
         panel.add(editor.getText(), Component.BOTTOM_ALIGNMENT);
+        menuBar.add(wordCount);
+        wordCount.setLocation(menuBar.getX()+ menuBar.getWidth()-wordCount.getWidth(),menuBar.getY());
         frame.add(panel);
         frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 

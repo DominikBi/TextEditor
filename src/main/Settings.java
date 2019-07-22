@@ -10,6 +10,7 @@ public class Settings {
     private boolean autoSave;
 
     public boolean isDarkmode() {
+        load();
         return darkmode;
     }
 
@@ -35,7 +36,30 @@ public class Settings {
     JCheckBox darkmodeCheckbox = new JCheckBox();
     JEditorPane darkmodeEditorPane = new JEditorPane();
 
-
+    private void ask(){
+        JFrame askFrame = new JFrame();
+        JPanel panel = new JPanel();
+        JButton button = new JButton("Ok");
+        JButton button1 =new JButton("Later");
+        JTextField textField = new JTextField("You have to restart the program so the settings apply");
+        textField.setEditable(false);
+        button.addActionListener(e -> {
+            System.exit(0);
+        });
+        button1.addActionListener(e -> {
+            askFrame.setVisible(false);
+            jFrame.setVisible(false);
+        });
+        panel.add(textField, Component.CENTER_ALIGNMENT);
+        panel.add(button,Component.LEFT_ALIGNMENT);
+        panel.add(button1,Component.RIGHT_ALIGNMENT);
+        askFrame.add(panel);
+        textField.setPreferredSize(new Dimension(350,60));
+        askFrame.setSize(400,200);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        askFrame.setLocation(screenSize.width/2-200,screenSize.height/2-100);
+        askFrame.setVisible(true);
+    }
     private void save() {
         try (DataOutputStream stream = new DataOutputStream(new FileOutputStream(System.getProperty("user.home") + System.getProperty("file.separator") + "TextEditorSettings"))) {
             stream.writeBoolean(autoSave);
@@ -58,6 +82,10 @@ public class Settings {
         autoSaveCheckbox.setSelected(autoSave);
         darkmodeCheckbox.setSelected(darkmode);
     }
+    public void check(){
+        load();
+
+    }
     public void start(){
 
         load();
@@ -65,7 +93,14 @@ public class Settings {
 
         darkmodeEditorPane.setEditable(false);
         darkmodeEditorPane.setText("Dark-Mode");
-        darkmodeCheckbox.addActionListener(e -> darkmode = !darkmode);
+        darkmodeCheckbox.addActionListener(e -> {
+
+            darkmode = !darkmode;
+            save();
+            ask();
+        });
+
+
         autoSaveEditorPane.setEditable(false);
         autoSaveEditorPane.setText("Auto-Save");
 
@@ -79,6 +114,7 @@ public class Settings {
 
             }
             save();
+            ask();
 
         });
         jPanel.add(autoSaveCheckbox, Component.RIGHT_ALIGNMENT);

@@ -13,7 +13,12 @@ public class Editor extends JComponent {
     private JTextPane text = new JTextPane();
     private File file;
     private String lastLoad;
-    private int size;
+
+    public int getTextSize() {
+        return textSize;
+    }
+
+    public int textSize = StyleConstants.getFontSize(mas);
     private Color color = Color.BLACK;
     private ArrayList<ModifiedText> ModifiedTexts = new ArrayList<>();
     private int modiedTextedLen;
@@ -21,7 +26,6 @@ public class Editor extends JComponent {
     private boolean isItalic;
     private boolean isBold;
     private Color fontColor;
-    private int textSize;
     private String endText;
     private String fontFamily = "arial";
     private MyFont currentMyFont = new MyFont();
@@ -46,8 +50,8 @@ public class Editor extends JComponent {
     }
 
 
-    public void setSize(int size) {
-        this.size = size;
+    public void setTextSize(int textSize) {
+        this.textSize = textSize;
         sizeHasChanged = true;
         setStyle(0);
 
@@ -145,9 +149,8 @@ public class Editor extends JComponent {
         currentMyFont.setForeground(color);
         fontColor = color;
         if (sizeHasChanged) {
-            StyleConstants.setFontSize(mas, size);
-            currentMyFont.setSize(size);
-            textSize = size;
+            StyleConstants.setFontSize(mas, textSize);
+            currentMyFont.setSize(textSize);
             sizeHasChanged = false;
         }
         StyleConstants.setSpaceBelow(mas,spaceBelow);
