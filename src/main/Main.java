@@ -90,7 +90,7 @@ public class Main{
         frame.setTitle("Unknown File" + " - " + programmName);
         System.out.println("Fonts got loaded at " + (System.currentTimeMillis()-time) + "ms");
 
-        menu();
+
         System.out.println("Menu got loaded at " + (System.currentTimeMillis()-time) + "ms");
         //getting all the positions of the JMenus
         modifyField = new Rectangle(modify.getX(),modify.getY(),modify.getWidth(),modify.getHeight());
@@ -109,32 +109,7 @@ public class Main{
         underlineField = new Rectangle(underline.getX(),underline.getY(),underline.getWidth(),underline.getHeight());
         saveToPrintField = new Rectangle(saveToPrint.getX(),saveToPrint.getY(),saveToPrint.getWidth(),saveToPrint.getHeight());
         spaceBelowField = new Rectangle(spaceBelow.getX(),spaceBelow.getY(),spaceBelow.getWidth(),spaceBelow.getHeight());
-        settingsListener = e -> {
-            ArrayList<Integer> sizes = new ArrayList<>();
-            for(JMenu jMenu : menus){
-                sizes.add(jMenu.getX());
-            }
 
-            settings1.start();
-
-        };
-        saveAsListener = e -> saveAs();
-        colorListener = e -> changeColor();
-        boldListener = e -> editor.setStyle(Font.BOLD);
-        italicListener = e -> editor.setStyle(Font.ITALIC);
-        underlineListener = e -> editor.setStyle(3);
-        saveListener = e -> {
-            if (editor.isLoad()) {
-                save();
-            } else {
-                saveAs();
-            }
-        };
-        spaceBelowListener = e -> spaceBelowInterface();
-        closeListener = e -> close();
-        sizeListener = e -> modifySize();
-        openListener = e -> explorer();
-        saveToPrintListener = e -> saveToPrint();
         System.out.println("Rectangles got set at " + (System.currentTimeMillis()-time) + "ms");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         editor = new Editor();
@@ -187,11 +162,71 @@ public class Main{
         panel.add(editor.getText(), Component.BOTTOM_ALIGNMENT);
         menuBar.add(wordCount);
         wordCount.setLocation(menuBar.getX()+ menuBar.getWidth()-wordCount.getWidth(),menuBar.getY());
-
+        menu();
         frame.add(panel);
         frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
         frame.setVisible(true);
         //add the mouseListener to frame so that it works
+        settingsListener = e -> {
+            ArrayList<Integer> sizes = new ArrayList<>();
+            for(JMenu jMenu : menus){
+                sizes.add(jMenu.getX());
+            }
+
+            settings1.start();
+
+        };
+        saveAsListener = e -> saveAs();
+        colorListener = e -> changeColor();
+        boldListener = e -> editor.setStyle(Font.BOLD);
+        italicListener = e -> editor.setStyle(Font.ITALIC);
+        underlineListener = e -> editor.setStyle(3);
+        saveListener = e -> {
+            if (editor.isLoad()) {
+                save();
+            } else {
+                saveAs();
+            }
+        };
+        spaceBelowListener = e -> spaceBelowInterface();
+        closeListener = e -> close();
+        sizeListener = e -> modifySize();
+        openListener = e -> explorer();
+        saveToPrintListener = e -> saveToPrint();
+
+
+
+
+
+        System.out.println("Finished at " + (System.currentTimeMillis()-time) + "ms");
+    }
+    private void menu(){
+        settingsListener = e -> {
+            ArrayList<Integer> sizes = new ArrayList<>();
+            for(JMenu jMenu : menus){
+                sizes.add(jMenu.getX());
+            }
+
+            settings1.start();
+
+        };
+        saveAsListener = e -> saveAs();
+        colorListener = e -> changeColor();
+        boldListener = e -> editor.setStyle(Font.BOLD);
+        italicListener = e -> editor.setStyle(Font.ITALIC);
+        underlineListener = e -> editor.setStyle(3);
+        saveListener = e -> {
+            if (editor.isLoad()) {
+                save();
+            } else {
+                saveAs();
+            }
+        };
+        spaceBelowListener = e -> spaceBelowInterface();
+        closeListener = e -> close();
+        sizeListener = e -> modifySize();
+        openListener = e -> explorer();
+        saveToPrintListener = e -> saveToPrint();
         modify.addActionListener(e -> {
             settings.removeActionListener(settingsListener);
             open.removeActionListener(openListener);
@@ -207,22 +242,22 @@ public class Main{
             underline.addActionListener(underlineListener);
         });
         menu.addActionListener(e -> {
-                settings.addActionListener(settingsListener);
-                open.addActionListener(openListener);
-                close.addActionListener(closeListener);
-                save.addActionListener(saveListener);
-                saveToPrint.addActionListener(saveToPrintListener);
-                saveAs.addActionListener(saveAsListener);
-                spaceBelow.removeActionListener(spaceBelowListener);
-                color.removeActionListener(colorListener);
-                size.removeActionListener(sizeListener);
-                italic.removeActionListener(italicListener);
-                bold.removeActionListener(boldListener);
-                underline.removeActionListener(underlineListener);
-            });
+            settings.addActionListener(settingsListener);
+            open.addActionListener(openListener);
+            close.addActionListener(closeListener);
+            save.addActionListener(saveListener);
+            saveToPrint.addActionListener(saveToPrintListener);
+            saveAs.addActionListener(saveAsListener);
+            spaceBelow.removeActionListener(spaceBelowListener);
+            color.removeActionListener(colorListener);
+            size.removeActionListener(sizeListener);
+            italic.removeActionListener(italicListener);
+            bold.removeActionListener(boldListener);
+            underline.removeActionListener(underlineListener);
+        });
 
 
-        /*editor.getText().addKeyListener(new KeyAdapter() {
+        editor.getText().addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
                 super.keyReleased(e);
@@ -243,12 +278,6 @@ public class Main{
                 }
             }
         });
-
-         */
-
-        System.out.println("Finished at " + (System.currentTimeMillis()-time) + "ms");
-    }
-    private void menu(){
 
         ArrayList<JMenu> alModify = new ArrayList<>();
         ArrayList<JMenu> alFile = new ArrayList<>();
@@ -293,6 +322,18 @@ public class Main{
         menuBar.add(menu);
         menuBar.add(modify);
         menuBar.add(test);
+        underline.addActionListener(underlineListener);
+        spaceBelow.addActionListener(spaceBelowListener);
+        color.addActionListener(colorListener);
+        size.addActionListener(sizeListener);
+        italic.addActionListener(italicListener);
+        bold.addActionListener(boldListener);
+        settings.addActionListener(settingsListener);
+        open.addActionListener(openListener);
+        close.addActionListener(closeListener);
+        save.addActionListener(saveListener);
+        saveToPrint.addActionListener(saveToPrintListener);
+        saveAs.addActionListener(saveAsListener);
         modify.setIcon(modifyIcon);
         Icon fileIcon = new ImageIcon(System.getProperty("user.home") +System.getProperty("file.separator") +  resFolder + System.getProperty("file.separator") + "fileIcon.png");
         menu.setIcon(fileIcon);
@@ -388,6 +429,7 @@ public class Main{
         frame.setSize(300,300);
         frame.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width/2-150,Toolkit.getDefaultToolkit().getScreenSize().height/2-150);
         frame.setVisible(true);
+        frame.requestFocus();
         buttonYes.addActionListener(e -> System.exit(0));
         buttonNo.addActionListener(e -> frame.setVisible(false));
 
@@ -400,9 +442,10 @@ public class Main{
     }
     //the modify size frame
     private void modifySize(){
-        final JFrame frame = new JFrame("Size");
+        JFrame frame = new JFrame("Size");
         System.out.println("Worked??");
         JPanel panel = new JPanel();
+        frame.requestFocus();
         JComboBox<Integer> comboBox = new JComboBox<>();
         JButton button = new JButton("OK");
         for(int i = 2; i< 128; i+=2){
@@ -453,6 +496,7 @@ public class Main{
         });
         chooserFrame.add(panel);
         chooserFrame.setVisible(true);
+        chooserFrame.requestFocus();
 
     }
     //save as a txt file for now just if you want to print it.
@@ -474,6 +518,7 @@ public class Main{
         });
         chooserFrame.add(panel);
         chooserFrame.setVisible(true);
+        chooserFrame.requestFocus();
     }
 
     private void explorer(){
@@ -498,6 +543,7 @@ public class Main{
         expFrame.add(panel);
         expFrame.setSize(550, 400);
         expFrame.setVisible(true);
+        expFrame.requestFocus();
     }
     private void spaceBelowInterface(){
         JFrame spaceBelowFrame= new JFrame("Set space below");
@@ -550,21 +596,27 @@ public class Main{
                     save.addActionListener(saveListener);
                     saveToPrint.addActionListener(saveToPrintListener);
                     saveAs.addActionListener(saveAsListener);
+                    /*
                     spaceBelow.removeActionListener(spaceBelowListener);
                     color.removeActionListener(colorListener);
                     size.removeActionListener(sizeListener);
                     italic.removeActionListener(italicListener);
                     bold.removeActionListener(boldListener);
                     underline.removeActionListener(underlineListener);
+
+                     */
                 };
             }case  selModify: {
                 return e -> {
+                    /*
                     settings.removeActionListener(settingsListener);
                     open.removeActionListener(openListener);
                     close.removeActionListener(closeListener);
                     save.removeActionListener(saveListener);
                     saveToPrint.removeActionListener(saveToPrintListener);
                     saveAs.removeActionListener(saveAsListener);
+
+                     */
                     spaceBelow.addActionListener(spaceBelowListener);
                     color.addActionListener(colorListener);
                     size.addActionListener(sizeListener);
@@ -575,6 +627,7 @@ public class Main{
             }
             default: return e -> {
                     if (!allDeleted) {
+                        /*
                         settings.removeActionListener(settingsListener);
                         open.removeActionListener(openListener);
                         close.removeActionListener(closeListener);
@@ -587,6 +640,8 @@ public class Main{
                         italic.removeActionListener(italicListener);
                         bold.removeActionListener(boldListener);
                         underline.removeActionListener(underlineListener);
+
+                         */
                         allDeleted = true;
                     }
 
@@ -614,6 +669,7 @@ public class Main{
         });
         chooserFrame.add(panel);
         chooserFrame.setVisible(true);
+        chooserFrame.requestFocus();
     }
 
 
