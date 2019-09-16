@@ -18,10 +18,10 @@ public class Main{
     private JPanel panel = new JPanel();
     private JFrame expFrame = new JFrame();
     private JColorChooser colorChooser = new JColorChooser();
-    private JMenuBar menuBar = new JMenuBar();
     private JMenu wordCount;
     public boolean darkmode;
     public Editor editor;
+    private MenuBar menuBar;
     private String programmName = "Sonit";
     private Text text = new Text();
     private final String[] fonts;
@@ -84,7 +84,7 @@ public class Main{
 
     Main() {
         long time = System.currentTimeMillis();
-
+        menuBar = new MenuBar();
         System.out.println("Main got run at " + (System.currentTimeMillis()-time) + "ms");
         fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
         frame.setTitle("Unknown File" + " - " + programmName);
@@ -121,7 +121,7 @@ public class Main{
         if(darkmode){
             frame.setBackground(Color.darkGray);
             editor.getText().setForeground(Color.GRAY);
-            menuBar.setBackground(Color.lightGray);
+            menuBar.getMenuBar().setBackground(Color.lightGray);
         }
         System.out.println("Settings got loaded at " + (System.currentTimeMillis()-time) + "ms");
         frame.addComponentListener(new ComponentAdapter() {
@@ -160,8 +160,8 @@ public class Main{
         });
         System.out.println("Word count got set at " + (System.currentTimeMillis()-time) + "ms");
         panel.add(editor.getText(), Component.BOTTOM_ALIGNMENT);
-        menuBar.add(wordCount);
-        wordCount.setLocation(menuBar.getX()+ menuBar.getWidth()-wordCount.getWidth(),menuBar.getY());
+        menuBar.getMenuBar().add(wordCount);
+        wordCount.setLocation(menuBar.getMenuBar().getX()+ menuBar.getMenuBar().getWidth()-wordCount.getWidth(),menuBar.getMenuBar().getY());
         menu();
         frame.add(panel);
         frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
@@ -319,9 +319,9 @@ public class Main{
         modify.add(size);
         modify.add(spaceBelow);
         modify.add(color);
-        menuBar.add(menu);
-        menuBar.add(modify);
-        menuBar.add(test);
+        menuBar.getMenuBar().add(menu);
+        menuBar.getMenuBar().add(modify);
+        menuBar.getMenuBar().add(test);
         underline.addActionListener(underlineListener);
         spaceBelow.addActionListener(spaceBelowListener);
         color.addActionListener(colorListener);
@@ -337,7 +337,7 @@ public class Main{
         modify.setIcon(modifyIcon);
         Icon fileIcon = new ImageIcon(System.getProperty("user.home") +System.getProperty("file.separator") +  resFolder + System.getProperty("file.separator") + "fileIcon.png");
         menu.setIcon(fileIcon);
-        frame.setJMenuBar(menuBar);
+        frame.setJMenuBar(menuBar.getMenuBar());
         menus.add(menu);
         menus.add(modify);
 
@@ -566,25 +566,7 @@ public class Main{
 
 
     }
-    /*
-    private JMenu menu = new JMenu("File");
-    private JMenu modify = new JMenu("Modify");
-    private JMenu test = new JMenu("Test");
-    private JMenu fontFamily = new JMenu("Font");
-    private JMenu changeStyle = new JMenu("Change Text Style");
-    private JMenuItem settings = new JMenuItem("Settings");
-    private JMenuItem saveAs = new JMenuItem("Save As");
-    private JMenuItem color = new JMenuItem("Change Color");
-    private JMenuItem open = new JMenuItem("Open");
-    private JMenuItem close = new JMenuItem("Close");
-    private JMenuItem save = new JMenuItem("Save");
-    private JMenuItem size = new JMenuItem("Size");
-    private JMenuItem italic = new JMenuItem("Italic");
-    private JMenuItem bold = new JMenuItem("Bold");
-    private JMenuItem underline = new JMenuItem("Underline");
-    private JMenuItem saveToPrint = new JMenuItem("Save to Print");
-    private JMenu spaceBelow = new JMenu("Space Below Text");
-     */
+
 
     private ActionListener getMainListener(int menu){
         switch (menu) {
@@ -596,7 +578,7 @@ public class Main{
                     save.addActionListener(saveListener);
                     saveToPrint.addActionListener(saveToPrintListener);
                     saveAs.addActionListener(saveAsListener);
-                    /*
+
                     spaceBelow.removeActionListener(spaceBelowListener);
                     color.removeActionListener(colorListener);
                     size.removeActionListener(sizeListener);
@@ -604,11 +586,10 @@ public class Main{
                     bold.removeActionListener(boldListener);
                     underline.removeActionListener(underlineListener);
 
-                     */
                 };
             }case  selModify: {
                 return e -> {
-                    /*
+
                     settings.removeActionListener(settingsListener);
                     open.removeActionListener(openListener);
                     close.removeActionListener(closeListener);
@@ -616,7 +597,7 @@ public class Main{
                     saveToPrint.removeActionListener(saveToPrintListener);
                     saveAs.removeActionListener(saveAsListener);
 
-                     */
+
                     spaceBelow.addActionListener(spaceBelowListener);
                     color.addActionListener(colorListener);
                     size.addActionListener(sizeListener);
@@ -627,7 +608,7 @@ public class Main{
             }
             default: return e -> {
                     if (!allDeleted) {
-                        /*
+
                         settings.removeActionListener(settingsListener);
                         open.removeActionListener(openListener);
                         close.removeActionListener(closeListener);
@@ -641,7 +622,7 @@ public class Main{
                         bold.removeActionListener(boldListener);
                         underline.removeActionListener(underlineListener);
 
-                         */
+
                         allDeleted = true;
                     }
 
