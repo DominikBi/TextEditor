@@ -3,8 +3,8 @@ package src.main;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 
 public class MenuBar {
@@ -48,10 +48,14 @@ public class MenuBar {
     }
     MenuBar(){
         menuBar = new JMenuBar();
+        AffineTransform affineTransform = new AffineTransform();
+        FontRenderContext frc = new FontRenderContext(affineTransform,true,true);
+        Font font = new Font("Tahoma",Font.PLAIN,12);
         fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
         ArrayList<JMenu> alModify = new ArrayList<>();
         ArrayList<JMenu> alFile = new ArrayList<>();
         ArrayList<JMenu> alTest = new ArrayList<>();
+        menuBar.setPreferredSize(new Dimension(100,50));
         alTest.add(menu);
         alTest.add(modify);
         alModify.add(menu);

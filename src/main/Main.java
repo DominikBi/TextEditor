@@ -20,6 +20,7 @@ public class Main{
     private JColorChooser colorChooser = new JColorChooser();
     private JMenu wordCount;
     public boolean darkmode;
+    private boolean autoSave;
     public Editor editor;
     private MenuBar menuBar;
     private String programmName = "Sonit";
@@ -47,22 +48,6 @@ public class Main{
 
     private Settings settings1 = new Settings();
     private final String resFolder = "SonitRes";
-    private Rectangle modifyField;
-    private Rectangle menuField;
-    private Rectangle fontSelField;
-    private Rectangle changeStyleField;
-    private Rectangle settingsField;
-    private Rectangle saveAsField;
-    private Rectangle colorField;
-    private Rectangle openField;
-    private Rectangle closeField;
-    private Rectangle saveField;
-    private Rectangle sizeField;
-    private Rectangle italicField;
-    private Rectangle boldField;
-    private Rectangle underlineField;
-    private Rectangle saveToPrintField;
-    private Rectangle spaceBelowField;
 
     private ActionListener settingsListener;
     private ActionListener saveAsListener;
@@ -93,22 +78,6 @@ public class Main{
 
         System.out.println("Menu got loaded at " + (System.currentTimeMillis()-time) + "ms");
         //getting all the positions of the JMenus
-        modifyField = new Rectangle(modify.getX(),modify.getY(),modify.getWidth(),modify.getHeight());
-        menuField = new Rectangle(menu.getX(),menu.getY(),menu.getWidth(),menu.getHeight());
-        fontSelField = new Rectangle(fontFamily.getX(),fontFamily.getY(),fontFamily.getWidth(),fontFamily.getHeight());
-        changeStyleField = new Rectangle(changeStyle.getX(),changeStyle.getY(),changeStyle.getWidth(),changeStyle.getHeight());
-        settingsField = new Rectangle(settings.getX(),settings.getY(),settings.getWidth(),settings.getHeight());
-        saveAsField = new Rectangle(saveAs.getX(),saveAs.getY(),saveAs.getWidth(),saveAs.getHeight());
-        colorField = new Rectangle(color.getX(),color.getY(),color.getWidth(),color.getHeight());
-        openField = new Rectangle(open.getX(),open.getY(),open.getWidth(),open.getHeight());
-        closeField = new Rectangle(open.getX(),open.getY(),open.getWidth(),open.getHeight());
-        saveField = new Rectangle(save.getX(),save.getY(),save.getWidth(),save.getHeight());
-        sizeField = new Rectangle(size.getX(),size.getY(),size.getWidth(),size.getHeight());
-        italicField = new Rectangle(italic.getX(),italic.getY(),italic.getWidth(),italic.getHeight());
-        boldField = new Rectangle(bold.getX(),bold.getY(),bold.getWidth(),bold.getHeight());
-        underlineField = new Rectangle(underline.getX(),underline.getY(),underline.getWidth(),underline.getHeight());
-        saveToPrintField = new Rectangle(saveToPrint.getX(),saveToPrint.getY(),saveToPrint.getWidth(),saveToPrint.getHeight());
-        spaceBelowField = new Rectangle(spaceBelow.getX(),spaceBelow.getY(),spaceBelow.getWidth(),spaceBelow.getHeight());
 
         System.out.println("Rectangles got set at " + (System.currentTimeMillis()-time) + "ms");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -120,8 +89,25 @@ public class Main{
         darkmode = settings1.isDarkmode();
         if(darkmode){
             frame.setBackground(Color.darkGray);
-            editor.getText().setForeground(Color.GRAY);
+
+            //editor.getText().setForeground(Color.GRAY);
+            //editor.getText().setBackground(Color.GRAY);
+            // editor.setBackground(Color.BLACK);
             menuBar.getMenuBar().setBackground(Color.lightGray);
+        }
+        autoSave = settings1.isAutoSave();
+        if(autoSave){
+            editor.getText().addKeyListener(new KeyAdapter() {
+                @Override
+                public void keyReleased(KeyEvent e) {
+                    super.keyReleased(e);
+                    try {
+                        editor.save();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            });
         }
         System.out.println("Settings got loaded at " + (System.currentTimeMillis()-time) + "ms");
         frame.addComponentListener(new ComponentAdapter() {
@@ -370,22 +356,6 @@ public class Main{
                             activeMenu.setLocation(jMenuOldPos.x,jMenuOldPos.y);
                             jMenu.setPreferredSize(new Dimension(jMenuOldPos.width,jMenuOldPos.height));
                             activeMenu.setPreferredSize(new Dimension(activeMenuOldPos.width,activeMenuOldPos.height));
-                            modifyField = new Rectangle(modify.getX(),modify.getY(),modify.getWidth(),modify.getHeight());
-                            menuField = new Rectangle(menu.getX(),menu.getY(),menu.getWidth(),menu.getHeight());
-                            fontSelField = new Rectangle(fontFamily.getX(),fontFamily.getY(),fontFamily.getWidth(),fontFamily.getHeight());
-                            changeStyleField = new Rectangle(changeStyle.getX(),changeStyle.getY(),changeStyle.getWidth(),changeStyle.getHeight());
-                            settingsField = new Rectangle(settings.getX(),settings.getY(),settings.getWidth(),settings.getHeight());
-                            saveAsField = new Rectangle(saveAs.getX(),saveAs.getY(),saveAs.getWidth(),saveAs.getHeight());
-                            colorField = new Rectangle(color.getX(),color.getY(),color.getWidth(),color.getHeight());
-                            openField = new Rectangle(open.getX(),open.getY(),open.getWidth(),open.getHeight());
-                            closeField = new Rectangle(open.getX(),open.getY(),open.getWidth(),open.getHeight());
-                            saveField = new Rectangle(save.getX(),save.getY(),save.getWidth(),save.getHeight());
-                            sizeField = new Rectangle(size.getX(),size.getY(),size.getWidth(),size.getHeight());
-                            italicField = new Rectangle(italic.getX(),italic.getY(),italic.getWidth(),italic.getHeight());
-                            boldField = new Rectangle(bold.getX(),bold.getY(),bold.getWidth(),bold.getHeight());
-                            underlineField = new Rectangle(underline.getX(),underline.getY(),underline.getWidth(),underline.getHeight());
-                            saveToPrintField = new Rectangle(saveToPrint.getX(),saveToPrint.getY(),saveToPrint.getWidth(),saveToPrint.getHeight());
-                            spaceBelowField = new Rectangle(spaceBelow.getX(),spaceBelow.getY(),spaceBelow.getWidth(),spaceBelow.getHeight());
 
                         }
                     }

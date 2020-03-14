@@ -83,9 +83,8 @@ public class Editor extends JComponent {
     }
 
     public void save() throws IOException {
-        if (hasChanged()) {
             save(file);
-        }
+
     }
 
     public File getFile() {
@@ -174,7 +173,7 @@ public class Editor extends JComponent {
 
     public void save(File file) throws IOException {
         this.file = file;
-        try (DataOutputStream stream = new DataOutputStream(new FileOutputStream(file + ".txt"))) {
+        try (DataOutputStream stream = new DataOutputStream(new FileOutputStream(file + ".te"))) {
 
             stream.writeUTF(text.getText());
             stream.writeInt(ModifiedTexts.size());
@@ -190,7 +189,7 @@ public class Editor extends JComponent {
                 stream.writeFloat(modifiedText.spaceBelow);
                 stream.writeBoolean(modifiedText.isUnderlined);
             }
-            FileInputStream fis = new FileInputStream(file + ".txt");
+            FileInputStream fis = new FileInputStream(file + ".te");
             while(fis.available() > 0){
                 endText += (char) fis.read();
             }

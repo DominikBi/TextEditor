@@ -64,8 +64,6 @@ public class Settings {
         try (DataOutputStream stream = new DataOutputStream(new FileOutputStream(System.getProperty("user.home") + System.getProperty("file.separator") + "TextEditorSettings"))) {
             stream.writeBoolean(autoSave);
             stream.writeBoolean(darkmode);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -74,7 +72,7 @@ public class Settings {
         try(DataInputStream stream = new DataInputStream(new FileInputStream(System.getProperty("user.home") + System.getProperty("file.separator") + "TextEditorSettings"))) {
             autoSave = stream.readBoolean();
             darkmode = stream.readBoolean();
-        } catch (FileNotFoundException e) {
+        } catch (FileNotFoundException ignored) {
 
         } catch (IOException e) {
             e.printStackTrace();
